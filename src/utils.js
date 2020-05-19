@@ -3,9 +3,19 @@ const {
   pLParen, pRParen, pComma, wss,
 } = require('./base_parsers');
 
-exports.prettyPrint = function (json, isPrint) {
-  if (isPrint) {
-    console.log(JSON.stringify(json, null, 2));
+exports.prettyPrint = function (parser, test, isPrint) {
+  let json;
+  let tests = test;
+  if (typeof test === 'string') tests = [test];
+  try {
+    tests.forEach(test => {
+      json = parser.tryParse(test);
+      if (isPrint) {
+        console.log(JSON.stringify(json, null, 2));
+      }
+    });
+  } catch (error) {
+    console.log(error.message);
   }
 };
 
@@ -25,5 +35,5 @@ exports.makeNode = function (name) {
 };
 
 exports.makeList = function (parser) {
-  return P.seq(pLParen, parser.sepBy(pComma), pRParen).skip(wss);
+  return P.seq(pLParen, parser.sepBy1(pComma), pRParen).skip(wss);
 };
