@@ -1,7 +1,7 @@
 const { prettyPrint } = require('../utils.js');
 const {
   pIdendity, pColumnIndex, pColumnConstraint, pDataType, pColumnDefinition
-} = require('./parsers');
+} = require('./column_definition');
 
 const testIdendity = 'IDENDITY(1, 2, 3, 4, 5, 6)     --abc        d';
 const testColumnIndex = 'INDEX    test WITH (PAD_INDEX = ON) FILESTREAM_ON "NULL" ON [file_group_name] ';
