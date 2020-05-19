@@ -33,7 +33,7 @@ function regularIdentifierWithKeywordCheck (_keywords) {
 }
 const pRegularIdentifer = regularIdentifierWithKeywordCheck(keywords);
 const pIdentifier = P.alt(pRegularIdentifer, pDelimitedIdentifier).skip(wss);
-const pColumnName = P.sepBy1(pIdentifier, P.string('.')).skip(wss);
+const pDotDelimitedName = P.sepBy1(pIdentifier, P.string('.')).skip(wss);
 
 const pString = P.regexp(/^'[^']*'$/).skip(wss);
 const pUnicode = P.seq(P.string('N'), pString).skip(wss);
@@ -66,7 +66,7 @@ const lExpression = P.createLanguage({
     return enclosedOrNot(pBinaryExp);
   },
   SimpleExpression: () => {
-    const pExp = P.alt(pConst, pColumnName, pFunction, pRParen).skip(wss);
+    const pExp = P.alt(pConst, pDotDelimitedName, pFunction, pRParen).skip(wss);
     return enclosedOrNot(pExp);
   },
 });

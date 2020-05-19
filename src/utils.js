@@ -22,14 +22,11 @@ exports.prettyPrint = function (parser, test, isPrint) {
 exports.makeNode = function (name) {
   return function (parser) {
     return P.seqMap(P.index, parser, P.index, (start, value, end) => {
-      return {
-        type: name,
-        value,
-        token: {
-          start,
-          end,
-        },
+      value.value.token = {
+        start,
+        end,
       };
+      return value;
     }).skip(wss);
   };
 };

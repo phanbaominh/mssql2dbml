@@ -18,7 +18,7 @@ const pOptionList = makeList(pOption);
 const pFunctionParam = P.alt(pNumber, pIdentifier);
 const pFunction = P.seq(pIdentifier, makeList(pFunctionParam));
 
-const pColumnName = P.sepBy1(pIdentifier, P.string('.'));
+const pDotDelimitedName = P.sepBy1(pIdentifier, P.string('.'));
 
 const pString = P.regexp(/'[^']*'/).skip(B.wss);
 const pUnicode = P.seq(P.string('N'), pString).skip(B.wss);
@@ -28,7 +28,10 @@ const pMoney = P.seq(P.regexp(/[+-]\$/), pNumber).skip(B.wss);
 const pSigned = P.seq(P.regexp(/[+-]/), pNumber).skip(B.wss);
 const pConst = P.alt(pString, pUnicode, pBinary, pScience, pMoney, pSigned, pNumber);
 
-const pKeywordPKOrUnique = P.alt(B.pKeywordPrimaryKey, B.pKeywordUnique).skip(B.wss);
+const pKeywordPKOrUnique = P.alt(
+  B.pKeywordPrimaryKey.result({ type: 'pk', value: true }),
+  B.pKeywordUnique.result({ type: 'unique', value: true }),
+).skip(B.wss);
 const pKeywordClusteredOrNon = P.alt(B.pKeywordClustered, B.pKeywordNonclustered).skip(B.wss);
 module.exports = {
   pIdentifier,
@@ -37,7 +40,7 @@ module.exports = {
   pOptionList,
   pNumberList,
   pFunction,
-  pColumnName,
+  pDotDelimitedName,
   pDelimitedIdentifier,
   pKeywordPKOrUnique,
   pKeywordClusteredOrNon,

@@ -43,7 +43,10 @@ exports.pKeywordSetNull = keyword(/SET[^\S\r\n]+NULL/i);
 exports.pKeywordSetDefault = keyword(/SET[^\S\r\n]+DEFAULT/i);
 exports.pKeywordNoAction = keyword(/NO[^\S\r\n]+ACTION/i);
 exports.pKeywordCascade = keyword(/CASCADE/i);
-
+exports.pKeywordContent = keyword(/CONTENT/i);
+exports.pKeywordDocument = keyword(/DOCUMENT/i);
+exports.pKeywordNull = keyword(/NULL/i);
+exports.pKeywordNotNull = keyword(/NOT[^\S\r\n]+NULL/i);
 exports.pLogicalOpIn = keyword(/IN/i, true);
 
 exports.pLessThan = word('<');
