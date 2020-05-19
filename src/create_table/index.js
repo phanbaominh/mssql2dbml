@@ -10,7 +10,9 @@ const testColumnConstraintPK = 'CONSTRAINT const   PRIMARY KEY CLUSTERED WITH   
 const testColumnConstraintFK = 'FOREIGN KEY REFERENCES schema1.table1 (column1) ON DELETE NO ACTION ON UPDATE CASCADE NOT FOR REPLICATION';
 const testColumnConstraintNFR = 'CHECK NOT FOR REPLICATION  ( 4 > 5 )';
 const testColumnConstraintEnum = 'CHECK ([status] IN (\'abc\', \'xyz\'))';
-const testColumnConstraints = [testColumnConstraintPK, testColumnConstraintFK, testColumnConstraintEnum, testColumnConstraintNFR];
+const testColumnConstraintDefault = 'DEFAULT \'king\'';
+const testColumnConstraints = [testColumnConstraintPK, testColumnConstraintFK, testColumnConstraintEnum,
+  testColumnConstraintNFR, testColumnConstraintDefault];
 
 const testDataType = ['varchar(500)', 'int(1,2)', 'varchar(CONTENT xml)'];
 prettyPrint(pIdendity, testIdendity, true);

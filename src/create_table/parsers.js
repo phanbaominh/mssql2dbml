@@ -3,7 +3,7 @@ const _ = require('lodash');
 const BP = require('../base_parsers');
 const { pExpression } = require('../expression');
 const CP = require('../composite_parsers');
-const { makeNode, makeList } = require('../utils');
+const { makeNode, makeList, streamline } = require('../utils');
 
 const pNullOrNot = P.alt(BP.pKeywordNull.result(false), BP.pKeywordNotNull.result(true))
   .map(value => {
@@ -70,7 +70,7 @@ const pConstraintCheckEnum = P.seqMap(
     const valuesProp = [];
     values.forEach(value => {
       valuesProp.push({
-        name: value,
+        name: value.value,
       });
     });
     return {
@@ -84,10 +84,7 @@ const pConstraintCheckEnum = P.seqMap(
 );
 
 const pConstraintCheckExpr = P.seq(BP.pLParen,
-  P.alt(pConstraintCheckEnum, pExpression
-    .map(value => {
-      return { type: 'expression', value };
-    })),
+  P.alt(pConstraintCheckEnum, pExpression.thru(streamline('expression'))),
   BP.pRParen.fallback(null)).map(value => value[1]);
 
 const pConstraintCheck = P.seq(
@@ -133,8 +130,36 @@ const pColumnConstraintFK = P.seqMap(
   },
 );
 
+const pConstExpr = P.alt(CP.pConst, BP.pKeywordNull, CP.pFunction);
+const pConstraintDefault = P.seqMap(
+  BP.pKeywordDefault,
+  pConstExpr,
+  (_keyword, constExpression) => {
+    const value = {};
+    if (constExpression.type) {
+      switch (constExpression.type) {
+        case 'string':
+        case 'number':
+          value.type = constExpression.type;
+          break;
+
+        default:
+          value.type = 'expression';
+          break;
+      }
+    } else {
+      value.type = 'expression';
+    }
+    value.value = constExpression.value;
+
+    return {
+      type: 'dbdefault',
+      value,
+    };
+  },
+);
 const pConstraintName = P.seq(BP.pKeywordConstraint, CP.pIdentifier);
-const pColumnConstraintOption = P.alt(pColumnConstraintIndex, pColumnConstraintFK, pConstraintCheck);
+const pColumnConstraintOption = P.alt(pColumnConstraintIndex, pColumnConstraintFK, pConstraintCheck, pConstraintDefault);
 
 const pColumnConstraint = P.seq(pConstraintName.fallback(null), pColumnConstraintOption)
   .map(value => value[1]);

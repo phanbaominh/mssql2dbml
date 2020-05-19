@@ -47,6 +47,8 @@ exports.pKeywordContent = keyword(/CONTENT/i);
 exports.pKeywordDocument = keyword(/DOCUMENT/i);
 exports.pKeywordNull = keyword(/NULL/i);
 exports.pKeywordNotNull = keyword(/NOT[^\S\r\n]+NULL/i);
+exports.pKeywordDefault = keyword(/DEFAULT/i);
+
 exports.pLogicalOpIn = keyword(/IN/i, true);
 
 exports.pLessThan = word('<');
