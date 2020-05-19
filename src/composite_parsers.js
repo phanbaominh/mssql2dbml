@@ -12,8 +12,6 @@ const pIdentifier = P.alt(pRegularIdentifier, pDelimitedIdentifier).skip(B.wss);
 const pNumber = P.regexp(/[0-9]+(\.[0-9]+)?/).map(Number).thru(streamline('number'));
 const pNumberList = makeList(pNumber);
 
-const pOption = P.seq(pRegularIdentifier, B.pEqual, pRegularIdentifier);
-const pOptionList = makeList(pOption);
 
 const pFunctionParam = P.alt(pNumber, pIdentifier);
 const pFunction = P.seq(pIdentifier, makeList(pFunctionParam));
@@ -33,6 +31,9 @@ const pMoney = P.seq(P.regexp(/[+-]\$/), pNumber).thru(streamline('money'));
 const pSigned = P.seq(P.regexp(/[+-]/), pNumber).thru(streamline('signed'));
 const pConst = P.alt(pString, pUnicode, pBinary, pScience, pMoney, pSigned, pNumber);
 
+const pOption = P.seq(pRegularIdentifier, B.pEqual, P.alt(pRegularIdentifier, pString));
+const pOptionList = makeList(pOption);
+
 const pKeywordPKOrUnique = P.alt(
   B.pKeywordPrimaryKey.result({ type: 'pk', value: true }),
   B.pKeywordUnique.result({ type: 'unique', value: true }),
@@ -50,4 +51,5 @@ module.exports = {
   pKeywordPKOrUnique,
   pKeywordClusteredOrNon,
   pConst,
+  pString,
 };

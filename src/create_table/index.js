@@ -1,6 +1,6 @@
 const { prettyPrint } = require('../utils.js');
 const {
-  pIdendity, pColumnIndex, pColumnConstraint, pDataType,
+  pIdendity, pColumnIndex, pColumnConstraint, pDataType, pColumnDefinition
 } = require('./parsers');
 
 const testIdendity = 'IDENDITY(1, 2, 3, 4, 5, 6)     --abc        d';
@@ -15,7 +15,10 @@ const testColumnConstraints = [testColumnConstraintPK, testColumnConstraintFK, t
   testColumnConstraintNFR, testColumnConstraintDefault];
 
 const testDataType = ['varchar(500)', 'int(1,2)', 'varchar(CONTENT xml)'];
-prettyPrint(pIdendity, testIdendity, true);
-prettyPrint(pColumnIndex, testColumnIndex, true);
-prettyPrint(pColumnConstraint, testColumnConstraints, true);
-prettyPrint(pDataType, testDataType, true);
+
+const testColumnDefinition = 'field1 varchar(500) FILESTREAM IDENDITY(1,1) NOT NULL DEFAULT \'field\'  CHECK ([field] IN (\'field\')) PRIMARY KEY COLLATE collater';
+prettyPrint(pIdendity, testIdendity, false);
+prettyPrint(pColumnIndex, testColumnIndex, false);
+prettyPrint(pColumnConstraint, testColumnConstraints, false);
+prettyPrint(pDataType, testDataType, false);
+prettyPrint(pColumnDefinition, testColumnDefinition, true);

@@ -5,22 +5,6 @@ const { pExpression } = require('../expression');
 const CP = require('../composite_parsers');
 const { makeNode, makeList, streamline } = require('../utils');
 
-const pNullOrNot = P.alt(BP.pKeywordNull.result(false), BP.pKeywordNotNull.result(true))
-  .map(value => {
-    return {
-      type: 'not_null',
-      value,
-    };
-  });
-const pIdendity = P.seq(BP.pKeywordIdendity, CP.pNumberList.fallback(null))
-  // eslint-disable-next-line no-unused-vars
-  .map(_value => {
-    return {
-      type: 'increment',
-      value: true,
-    };
-  });
-
 const pWithIndexOption = P.seq(BP.pKeywordWith, CP.pOptionList);
 const pOnIndexOption = P.seq(BP.pKeywordOn, P.alt(CP.pIdentifier, CP.pFunction));
 const pColumnIndexFilestream = P.seq(BP.pKeywordFilestream_On, CP.pIdentifier);
@@ -95,7 +79,7 @@ const pConstraintCheck = P.seq(
 
 const pColumnConstraintIndex = P.seqMap(
   CP.pKeywordPKOrUnique,
-  CP.pKeywordClusteredOrNon,
+  CP.pKeywordClusteredOrNon.fallback(null),
   (keyword) => {
     return keyword;
   },
@@ -159,7 +143,12 @@ const pConstraintDefault = P.seqMap(
   },
 );
 const pConstraintName = P.seq(BP.pKeywordConstraint, CP.pIdentifier);
-const pColumnConstraintOption = P.alt(pColumnConstraintIndex, pColumnConstraintFK, pConstraintCheck, pConstraintDefault);
+const pColumnConstraintOption = P.alt(
+  pColumnConstraintIndex,
+  pColumnConstraintFK,
+  pConstraintCheck,
+  pConstraintDefault,
+);
 
 const pColumnConstraint = P.seq(pConstraintName.fallback(null), pColumnConstraintOption)
   .map(value => value[1]);
@@ -180,10 +169,65 @@ const pDataType = P.seqMap(
   },
 );
 
+const pNullOrNot = P.alt(BP.pKeywordNull.result(false), BP.pKeywordNotNull.result(true))
+  .map(value => {
+    return {
+      type: 'not_null',
+      value,
+    };
+  });
+const pIdendity = P.seq(BP.pKeywordIdendity, CP.pNumberList.fallback(null))
+  // eslint-disable-next-line no-unused-vars
+  .map(_value => {
+    return {
+      type: 'increment',
+      value: true,
+    };
+  });
+
+const pColumnSetting1Word = P.alt(
+  BP.pKeywordFilestream,
+  BP.pKeywordNFR,
+  BP.pKeywordRowGUIDCol,
+  BP.pKeywordSparse,
+);
+const pColumnSettingWith = P.seq(P.alt(BP.pKeywordMasked, BP.pKeywordEncrypted), BP.pKeywordWith, CP.pOptionList);
+const pColumnSettingCollate = P.seq(BP.pKeywordCollate, CP.pIdentifier);
+const pColumnSettingGAAR = P.seq(
+  BP.pKeywordGeneratedAAR,
+  P.alt(BP.pKeywordStart, BP.pKeywordEnd),
+  BP.pKeywordHidden.fallback(null),
+);
+
+const pUSColumnSetting = P.alt(
+  pColumnSetting1Word,
+  pColumnSettingWith,
+  pColumnSettingGAAR,
+  pColumnSettingCollate,
+).many();
+
+const pColumnDefinition = P.seqMap(
+  CP.pDotDelimitedName,
+  pDataType.skip(pUSColumnSetting),
+  P.alt(pNullOrNot, pIdendity, pColumnIndex, pColumnConstraint).many(),
+  (fieldName, dataType, fieldSettings) => {
+    const value = {};
+    value[dataType.type] = dataType.value;
+    fieldSettings.forEach(setting => {
+      value[setting.type] = setting.value;
+    });
+    value.name = fieldName[0];
+    return {
+      type: 'field',
+      value,
+    };
+  },
+).skip(pUSColumnSetting).thru(makeNode());
 
 module.exports = {
   pIdendity,
   pColumnIndex,
   pColumnConstraint,
   pDataType,
+  pColumnDefinition,
 };

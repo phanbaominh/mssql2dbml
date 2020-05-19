@@ -48,6 +48,17 @@ exports.pKeywordDocument = keyword(/DOCUMENT/i);
 exports.pKeywordNull = keyword(/NULL/i);
 exports.pKeywordNotNull = keyword(/NOT[^\S\r\n]+NULL/i);
 exports.pKeywordDefault = keyword(/DEFAULT/i);
+exports.pKeywordFilestream = keyword(/FILESTREAM/i);
+exports.pKeywordCollate = keyword(/COLLATE/i);
+exports.pKeywordSparse = keyword(/SPARSE/i);
+exports.pKeywordRowGUIDCol = keyword(/ROWGUIDCOL/i);
+exports.pKeywordMasked = keyword(/MASKED/i);
+exports.pKeywordEncrypted = keyword(/ENCRYPTED/i);
+exports.pKeywordFunction = keyword(/FUNCTION/i);
+exports.pKeywordGeneratedAAR = keyword(/GENERATED ALWAYS AS ROW/i);
+exports.pKeywordStart = keyword(/START/i);
+exports.pKeywordEnd = keyword(/END/i);
+exports.pKeywordHidden = keyword(/HIDDEN/i);
 
 exports.pLogicalOpIn = keyword(/IN/i, true);
 
