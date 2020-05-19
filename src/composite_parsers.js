@@ -20,6 +20,14 @@ const pFunction = P.seq(pIdentifier, makeList(pFunctionParam));
 
 const pColumnName = P.sepBy1(pIdentifier, P.string('.'));
 
+const pString = P.regexp(/'[^']*'/).skip(B.wss);
+const pUnicode = P.seq(P.string('N'), pString).skip(B.wss);
+const pBinary = P.regexp(/0x[A-F0-9]*/).skip(B.wss);
+const pScience = P.regexp(/[+-]+[0-9]+(\.[0-9E]+)?/).skip(B.wss);
+const pMoney = P.seq(P.regexp(/[+-]\$/), pNumber).skip(B.wss);
+const pSigned = P.seq(P.regexp(/[+-]/), pNumber).skip(B.wss);
+const pConst = P.alt(pString, pUnicode, pBinary, pScience, pMoney, pSigned, pNumber);
+
 const pKeywordPKOrUnique = P.alt(B.pKeywordPrimaryKey, B.pKeywordUnique).skip(B.wss);
 const pKeywordClusteredOrNon = P.alt(B.pKeywordClustered, B.pKeywordNonclustered).skip(B.wss);
 module.exports = {
@@ -33,4 +41,5 @@ module.exports = {
   pDelimitedIdentifier,
   pKeywordPKOrUnique,
   pKeywordClusteredOrNon,
+  pConst,
 };

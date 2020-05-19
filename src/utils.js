@@ -35,5 +35,5 @@ exports.makeNode = function (name) {
 };
 
 exports.makeList = function (parser) {
-  return P.seq(pLParen, parser.sepBy1(pComma), pRParen).skip(wss);
+  return P.seq(pLParen, parser.sepBy1(pComma), pRParen).skip(wss).map(value => value[1]);
 };

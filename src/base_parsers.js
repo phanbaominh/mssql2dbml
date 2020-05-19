@@ -13,8 +13,8 @@ const word = function (string) {
   return P.string(string).skip(wss);
 };
 
-const keyword = function (regex) {
-  keywords.push(regex);
+const keyword = function (regex, op = false) {
+  if (!op) keywords.push(regex);
   return P.regexp(regex).skip(wss);
 };
 
@@ -26,23 +26,25 @@ exports.pKeywordWith = keyword(/WITH/i);
 exports.pKeywordOn = keyword(/ON/i);
 exports.pKeywordOff = keyword(/OFF/i);
 exports.pKeywordFilestream_On = keyword(/FILESTREAM_ON/i);
-exports.pKeywordPrimaryKey = keyword(/PRIMARY KEY/i);
+exports.pKeywordPrimaryKey = keyword(/PRIMARY[^\S\r\n]+KEY/i);
 exports.pKeywordClustered = keyword(/CLUSTERED/i);
 exports.pKeywordNonclustered = keyword(/NONCLUSTERED/i);
 exports.pKeywordReferences = keyword(/REFERENCES/i);
-exports.pKeywordForeignKey = keyword(/FOREIGN KEY/i);
+exports.pKeywordForeignKey = keyword(/FOREIGN[^\S\r\n]+KEY/i);
 exports.pKeywordCheck = keyword(/CHECK/i);
 exports.pKeywordConstraint = keyword(/CONSTRAINT/i);
 exports.pKeywordUnique = keyword(/UNIQUE/i);
 exports.pKeywordHash = keyword(/HASH/i);
 exports.pKeywordBucket_Count = keyword(/BUCKET_COUNT/i);
 exports.pKeywordNFR = keyword(/NOT[^\S\r\n]+FOR[^\S\r\n]+REPLICATION/);
-exports.pKeywordDelete = keyword(/DELETE/i);
-exports.pKeywordUpdate = keyword(/UPDATE/i);
-exports.pKeywordSetNull = keyword(/SET[^\S\r\n]NULL/i);
-exports.pKeywordSetDefault = keyword(/SET[^\S\r\n]DEFAULT/i);
-exports.pKeywordNoAction = keyword(/NO[^\S\r\n]ACTION/i);
+exports.pKeywordOnDelete = keyword(/ON[^\S\r\n]+DELETE/i);
+exports.pKeywordOnUpdate = keyword(/ON[^\S\r\n]+UPDATE/i);
+exports.pKeywordSetNull = keyword(/SET[^\S\r\n]+NULL/i);
+exports.pKeywordSetDefault = keyword(/SET[^\S\r\n]+DEFAULT/i);
+exports.pKeywordNoAction = keyword(/NO[^\S\r\n]+ACTION/i);
 exports.pKeywordCascade = keyword(/CASCADE/i);
+
+exports.pLogicalOpIn = keyword(/IN/i, true);
 
 exports.pLessThan = word('<');
 exports.pGreaterThan = word('>');

@@ -13,18 +13,96 @@ const pUSIndexOptions = P.alt(pWithIndexOption, pColumnIndexFilestream, pOnIndex
 
 const pColumnIndex = P.seq(BP.pKeywordIndex, CP.pIdentifier, CP.pKeywordClusteredOrNon.fallback(null)).thru(makeNode('column_index')).skip(pUSIndexOptions);
 
-
+const pFKKeywords = P.seq(BP.pKeywordForeignKey.fallback(null), BP.pKeywordReferences);
 const pFKOnOptions = P.alt(BP.pKeywordNoAction, BP.pKeywordCascade, BP.pKeywordSetDefault, BP.pKeywordSetNull);
-const pFKOnDelete = P.seq(BP.pKeywordOn, BP.pKeywordDelete, pFKOnOptions);
-const pFKOnUpdate = P.seq(BP.pKeywordOn, BP.pKeywordUpdate, pFKOnOptions);
-const pFKNFR = BP.pKeywordNFR;
+const pFKOnDelete = P.seqObj(
+  ['type', BP.pKeywordOnDelete],
+  ['setting', pFKOnOptions],
+);
+const pFKOnUpdate = P.seqObj(
+  ['type', BP.pKeywordOnUpdate],
+  ['setting', pFKOnOptions],
+);
+const pFKNFR = BP.pKeywordNFR.map(value => {
+  return { type: value };
+});
 const pFKOptions = P.alt(pFKOnDelete, pFKOnUpdate, pFKNFR).many();
-const pConstraintNFR = P.seq(BP.pKeywordCheck, BP.pKeywordNFR.fallback(null), pExpression);
+
+const pConstraintCheckEnum = P.seqMap(
+  CP.pIdentifier,
+  BP.pLogicalOpIn,
+  makeList(CP.pConst),
+  (fieldName, _ununsed, values) => {
+    const valuesProp = [];
+    values.forEach(value => {
+      valuesProp.push({
+        name: value,
+      });
+    });
+    return {
+      type: 'enum',
+      name: fieldName,
+      values: valuesProp,
+    };
+  },
+);
+
+const pConstraintCheckExpr = P.seq(BP.pLParen,
+  P.alt(pConstraintCheckEnum, pExpression),
+  BP.pRParen.fallback(null)).map(value => value[1]);
+
+const pConstraintCheck = P.seq(
+  BP.pKeywordCheck,
+  BP.pKeywordNFR.fallback(null),
+  pConstraintCheckExpr,
+).map(value => value[2]);
+
+const pColumnConstraintIndex = P.seqMap(
+  CP.pKeywordPKOrUnique,
+  CP.pKeywordClusteredOrNon,
+  (keyword) => {
+    return {
+      type: 'field_setting',
+      value: keyword,
+    };
+  },
+).skip(pUSIndexOptions);
+
+const pColumnConstraintFK = P.seqMap(
+  pFKKeywords,
+  CP.pColumnName,
+  makeList(CP.pIdentifier).fallback(null),
+  pFKOptions.fallback(null),
+  (_unused, tableName, columnName, fkOptions) => {
+    const value = {};
+    value.endpoint = {
+      tableName: tableName[tableName.length - 1],
+      fieldName: columnName,
+      relation: '*',
+    };
+
+    fkOptions.forEach(option => {
+      if (option.type.match(/ON[^\S\r\n]DELETE/i)) {
+        value.onDelete = option.setting;
+      }
+      if (option.type.match(/ON[^\S\r\n]UPDATE/i)) {
+        value.onUpdate = option.setting;
+      }
+    });
+
+    return {
+      type: 'inline_ref',
+      value,
+    };
+  },
+);
+
 const pConstraintName = P.seq(BP.pKeywordConstraint, CP.pIdentifier);
-const pColumnConstraintIndex = P.seq(CP.pKeywordPKOrUnique, CP.pKeywordClusteredOrNon).skip(pUSIndexOptions);
-const pColumnConstraintFK = P.seq(BP.pKeywordForeignKey.fallback(null), BP.pKeywordReferences, CP.pColumnName, makeList(CP.pIdentifier).fallback(null), pFKOptions.fallback(null));
-const pColumnConstraintOption = P.alt(pColumnConstraintIndex, pColumnConstraintFK, pConstraintNFR).many();
-const pColumnConstraint = P.seq(pConstraintName.fallback(null), pColumnConstraintOption);
+const pColumnConstraintOption = P.alt(pColumnConstraintIndex, pColumnConstraintFK, pConstraintCheck);
+
+const pColumnConstraint = P.seq(pConstraintName.fallback(null), pColumnConstraintOption)
+  .map(value => value[1])
+  .thru(makeNode('column_constraint'));
 
 module.exports = {
   pIdendity,
