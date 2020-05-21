@@ -1,13 +1,13 @@
 const P = require('parsimmon');
 const BP = require('../base_parsers');
-const CP = require('../composite_parsers');
+const { pDotDelimitedName, pIdentifier } = require('../composite_parsers');
 const { makeList } = require('../utils');
 
 const Lang = P.createLanguage({
   ColumnConstraintFK: (r) => P.seqMap(
     r.FKKeywords,
-    CP.DotDelimitedName,
-    makeList(CP.Identifier).fallback(null),
+    pDotDelimitedName,
+    makeList(pIdentifier).fallback(null),
     r.FKOptions.fallback(null),
     (_unused, tableName, columnName, fkOptions) => {
       const value = {};

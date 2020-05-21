@@ -1,14 +1,16 @@
 const P = require('parsimmon');
 const _ = require('lodash');
 const BP = require('../base_parsers');
-const CP = require('../composite_parsers');
+const {
+  pDotDelimitedName, pIdentifier, pNumberList, pOptionList,
+} = require('../composite_parsers');
 const { makeNode, makeList } = require('../utils');
 const { pColumnIndex } = require('./index_definition');
 const { pColumnConstraint } = require('./constraint_definition');
 
 const Lang = P.createLanguage({
   ColumnDefinition: (r) => P.seqMap(
-    CP.DotDelimitedName,
+    pDotDelimitedName,
     r.DataType.skip(r.USColumnSetting),
     P.alt(r.NullOrNot, r.Idendity, pColumnIndex, pColumnConstraint).many(),
     (fieldName, dataType, fieldSettings) => {
@@ -33,8 +35,8 @@ const Lang = P.createLanguage({
   ).many(),
 
   DataType: (r) => P.seqMap(
-    CP.DotDelimitedName,
-    makeList(P.alt(r.DataTypeXML, CP.Identifier)),
+    pDotDelimitedName,
+    makeList(P.alt(r.DataTypeXML, pIdentifier)),
     (typeName, args) => {
       return {
         type: 'type',
@@ -46,7 +48,7 @@ const Lang = P.createLanguage({
       };
     },
   ),
-  DataTypeXML: () => P.seq(P.alt(BP.KeywordDocument, BP.KeywordContent), CP.Identifier)
+  DataTypeXML: () => P.seq(P.alt(BP.KeywordDocument, BP.KeywordContent), pIdentifier)
     .map(value => value.join(' ')),
 
 
@@ -57,7 +59,7 @@ const Lang = P.createLanguage({
         value,
       };
     }),
-  Idendity: () => P.seq(BP.KeywordIdendity, CP.NumberList.fallback(null))
+  Idendity: () => P.seq(BP.KeywordIdendity, pNumberList.fallback(null))
   // eslint-disable-next-line no-unused-vars
     .map(_value => {
       return {
@@ -72,8 +74,8 @@ const Lang = P.createLanguage({
     BP.KeywordRowGUIDCol,
     BP.KeywordSparse,
   ),
-  ColumnSettingWith: () => P.seq(P.alt(BP.KeywordMasked, BP.KeywordEncrypted), BP.KeywordWith, CP.OptionList),
-  ColumnSettingCollate: () => P.seq(BP.KeywordCollate, CP.Identifier),
+  ColumnSettingWith: () => P.seq(P.alt(BP.KeywordMasked, BP.KeywordEncrypted), BP.KeywordWith, pOptionList),
+  ColumnSettingCollate: () => P.seq(BP.KeywordCollate, pIdentifier),
   ColumnSettingGAAR: () => P.seq(
     BP.KeywordGeneratedAAR,
     P.alt(BP.KeywordStart, BP.KeywordEnd),

@@ -1,7 +1,9 @@
 const P = require('parsimmon');
 const BP = require('../base_parsers');
 const { pExpression } = require('../expression');
-const CP = require('../composite_parsers');
+const {
+  pIdentifier, pKeywordPKOrUnique, pKeywordClusteredOrNon, pConst, pFunction,
+} = require('../composite_parsers');
 const { makeList, streamline } = require('../utils');
 const { pColumnConstraintFK } = require('./fk_definition');
 const { pUSIndexOptions } = require('./index_definition');
@@ -29,9 +31,9 @@ const Lang = P.createLanguage({
     BP.RParen.fallback(null)).map(value => value[1]),
 
   ConstraintCheckEnum: () => P.seqMap(
-    CP.Identifier,
+    pIdentifier,
     BP.LogicalOpIn,
-    makeList(CP.Const),
+    makeList(pConst),
     (fieldName, _ununsed, values) => {
       const valuesProp = [];
       values.forEach(value => {
@@ -50,8 +52,8 @@ const Lang = P.createLanguage({
   ),
 
   ColumnConstraintIndex: () => P.seqMap(
-    CP.KeywordPKOrUnique,
-    CP.KeywordClusteredOrNon.fallback(null),
+    pKeywordPKOrUnique,
+    pKeywordClusteredOrNon.fallback(null),
     (keyword) => {
       return keyword;
     },
@@ -85,8 +87,8 @@ const Lang = P.createLanguage({
     },
   ),
 
-  ConstExpr: () => P.alt(CP.Const, BP.KeywordNull, CP.Function),
-  ConstraintName: () => P.seq(BP.KeywordConstraint, CP.Identifier),
+  ConstExpr: () => P.alt(pConst, BP.KeywordNull, pFunction),
+  ConstraintName: () => P.seq(BP.KeywordConstraint, pIdentifier),
 });
 
 module.exports = {
