@@ -1,6 +1,6 @@
 const { prettyPrint } = require('../utils.js');
 const {
-  pIdendity, pColumnIndex, pColumnConstraint, pDataType, pColumnDefinition
+  pIdendity, pColumnIndex, pColumnConstraint, pDataType, pColumnDefinition,
 } = require('./column_definition');
 
 const testIdendity = 'IDENDITY(1, 2, 3, 4, 5, 6)     --abc        d';

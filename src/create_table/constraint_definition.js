@@ -3,116 +3,92 @@ const BP = require('../base_parsers');
 const { pExpression } = require('../expression');
 const CP = require('../composite_parsers');
 const { makeList, streamline } = require('../utils');
-const { pFKOptions, pFKKeywords } = require('./fk_definition');
+const { pColumnConstraintFK } = require('./fk_definition');
 const { pUSIndexOptions } = require('./index_definition');
 
-const pConstraintCheckEnum = P.seqMap(
-  CP.pIdentifier,
-  BP.pLogicalOpIn,
-  makeList(CP.pConst),
-  (fieldName, _ununsed, values) => {
-    const valuesProp = [];
-    values.forEach(value => {
-      valuesProp.push({
-        name: value.value,
+const Lang = P.createLanguage({
+  ColumnConstraint: (r) => P.seq(r.ConstraintName.fallback(null), r.ColumnConstraintOption)
+    .map(value => value[1]),
+
+  ColumnConstraintOption: (r) => P.alt(
+    r.ColumnConstraintIndex,
+    pColumnConstraintFK,
+    r.ConstraintCheck,
+    r.ConstraintDefault,
+  ),
+
+  ConstraintCheck: (r) => P.seq(
+    BP.pKeywordCheck,
+    BP.pKeywordNFR.fallback(null),
+    r.ConstraintCheckExpr,
+  ).map(value => value[2]),
+
+
+  ConstraintCheckExpr: (r) => P.seq(BP.pLParen,
+    P.alt(r.ConstraintCheckEnum, pExpression.thru(streamline('expression'))),
+    BP.pRParen.fallback(null)).map(value => value[1]),
+
+  ConstraintCheckEnum: () => P.seqMap(
+    CP.pIdentifier,
+    BP.pLogicalOpIn,
+    makeList(CP.pConst),
+    (fieldName, _ununsed, values) => {
+      const valuesProp = [];
+      values.forEach(value => {
+        valuesProp.push({
+          name: value.value,
+        });
       });
-    });
-    return {
-      type: 'enum',
-      value: {
-        name: fieldName,
-        values: valuesProp,
-      },
-    };
-  },
-);
+      return {
+        type: 'enum',
+        value: {
+          name: fieldName,
+          values: valuesProp,
+        },
+      };
+    },
+  ),
 
-const pConstraintCheckExpr = P.seq(BP.pLParen,
-  P.alt(pConstraintCheckEnum, pExpression.thru(streamline('expression'))),
-  BP.pRParen.fallback(null)).map(value => value[1]);
+  ColumnConstraintIndex: () => P.seqMap(
+    CP.pKeywordPKOrUnique,
+    CP.pKeywordClusteredOrNon.fallback(null),
+    (keyword) => {
+      return keyword;
+    },
+  ).skip(pUSIndexOptions),
 
-const pConstraintCheck = P.seq(
-  BP.pKeywordCheck,
-  BP.pKeywordNFR.fallback(null),
-  pConstraintCheckExpr,
-).map(value => value[2]);
+  ConstraintDefault: (r) => P.seqMap(
+    BP.pKeywordDefault,
+    r.ConstExpr,
+    (_keyword, constExpression) => {
+      const value = {};
+      if (constExpression.type) {
+        switch (constExpression.type) {
+          case 'string':
+          case 'number':
+            value.type = constExpression.type;
+            break;
 
-const pColumnConstraintIndex = P.seqMap(
-  CP.pKeywordPKOrUnique,
-  CP.pKeywordClusteredOrNon.fallback(null),
-  (keyword) => {
-    return keyword;
-  },
-).skip(pUSIndexOptions);
-
-const pColumnConstraintFK = P.seqMap(
-  pFKKeywords,
-  CP.pDotDelimitedName,
-  makeList(CP.pIdentifier).fallback(null),
-  pFKOptions.fallback(null),
-  (_unused, tableName, columnName, fkOptions) => {
-    const value = {};
-    value.endpoint = {
-      tableName: tableName[tableName.length - 1],
-      fieldName: columnName,
-      relation: '*',
-    };
-
-    fkOptions.forEach(option => {
-      if (option.type.match(/ON[^\S\r\n]DELETE/i)) {
-        value.onDelete = option.setting;
+          default:
+            value.type = 'expression';
+            break;
+        }
+      } else {
+        value.type = 'expression';
       }
-      if (option.type.match(/ON[^\S\r\n]UPDATE/i)) {
-        value.onUpdate = option.setting;
-      }
-    });
+      value.value = constExpression.value;
 
-    return {
-      type: 'inline_ref',
-      value: [value],
-    };
-  },
-);
+      return {
+        type: 'dbdefault',
+        value,
+      };
+    },
+  ),
 
-const pConstExpr = P.alt(CP.pConst, BP.pKeywordNull, CP.pFunction);
-const pConstraintDefault = P.seqMap(
-  BP.pKeywordDefault,
-  pConstExpr,
-  (_keyword, constExpression) => {
-    const value = {};
-    if (constExpression.type) {
-      switch (constExpression.type) {
-        case 'string':
-        case 'number':
-          value.type = constExpression.type;
-          break;
-
-        default:
-          value.type = 'expression';
-          break;
-      }
-    } else {
-      value.type = 'expression';
-    }
-    value.value = constExpression.value;
-
-    return {
-      type: 'dbdefault',
-      value,
-    };
-  },
-);
-const pConstraintName = P.seq(BP.pKeywordConstraint, CP.pIdentifier);
-const pColumnConstraintOption = P.alt(
-  pColumnConstraintIndex,
-  pColumnConstraintFK,
-  pConstraintCheck,
-  pConstraintDefault,
-);
-
-const pColumnConstraint = P.seq(pConstraintName.fallback(null), pColumnConstraintOption)
-  .map(value => value[1]);
+  ConstExpr: () => P.alt(CP.pConst, BP.pKeywordNull, CP.pFunction),
+  ConstraintName: () => P.seq(BP.pKeywordConstraint, CP.pIdentifier),
+});
 
 module.exports = {
-  pColumnConstraint,
+  pColumnConstraint: Lang.ColumnConstraint,
 };

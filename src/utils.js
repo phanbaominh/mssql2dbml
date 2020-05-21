@@ -7,16 +7,17 @@ exports.prettyPrint = function (parser, test, isPrint) {
   let json;
   let tests = test;
   if (typeof test === 'string') tests = [test];
-  try {
-    tests.forEach(test => {
-      json = parser.tryParse(test);
+
+  tests.forEach(test => {
+    json = parser.tryParse(test);
+    try {
       if (isPrint) {
         console.log(JSON.stringify(json, null, 2));
       }
-    });
-  } catch (error) {
-    console.log(error.message);
-  }
+    } catch (error) {
+      console.log(error.message);
+    }
+  });
 };
 
 exports.makeNode = function (name) {
