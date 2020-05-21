@@ -2,6 +2,7 @@ const P = require('parsimmon');
 const BP = require('../base_parsers');
 const { pDotDelimitedName, pIdentifier, pColumnNames } = require('../composite_parsers');
 const { makeList, makeNode } = require('../utils');
+const _ = require('lodash');
 
 function makeEndPoint (tableName, columnName, relation) {
   return {
@@ -27,16 +28,15 @@ const Lang = P.createLanguage({
     BP.KeywordForeignKey.fallback(null),
     r.TableEndpoint,
     BP.KeywordReferences,
+    pDotDelimitedName,
     r.TableEndpoint,
-    pColumnNames,
     r.FKOptions.fallback(null),
     (_keyword1, endpoint1, _keyword2, tableName, endpoint2, fkOptions) => {
       const value = {};
 
       endpoint1.value.relation = '*';
-      endpoint1.value.tableName = tableName;
       endpoint2.value.relation = '1';
-      endpoint2.value.tableName = tableName;
+      endpoint2.value.tableName = _.last(tableName);
 
       value.endpoints = [endpoint1.value, endpoint2.value];
       setOption(value, fkOptions);

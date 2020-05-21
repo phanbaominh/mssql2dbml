@@ -103,7 +103,7 @@ const Lang = P.createLanguage({
     P.alt(pFunction, pConst, BP.KeywordNull),
     BP.RParen.fallback(null),
   ).map(value => value[1]),
-  ConstraintName: () => P.seq(BP.KeywordConstraint, pIdentifier),
+  ConstraintName: () => P.seq(BP.KeywordConstraint, pIdentifier).map(value => value[1]),
 });
 
 module.exports = {

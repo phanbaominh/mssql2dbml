@@ -5,7 +5,7 @@ const wss = require('./whitespaces');
 
 const Lang = P.createLanguage({
 
-  pColumnNames: (r) => makeList(P.seq(r.pIdentifier, r.pKeywordAscOrDesc.fallback(null))),
+  pColumnNames: (r) => makeList(P.seq(r.pIdentifier, r.pKeywordAscOrDesc.fallback(null)).map(value => value[0])),
 
   pDotDelimitedName: (r) => P.sepBy1(r.pIdentifier, P.string('.')),
 

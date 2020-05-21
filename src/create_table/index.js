@@ -3,7 +3,7 @@ const {
   pIdentity, pColumnIndex, pColumnConstraint, pDataType, pColumnDefinition,
 } = require('./column_definition');
 
-const { pCreateTable } = require('./table_definition');
+const { pCreateTable, pTableConstraint } = require('./table_definition');
 
 const testIdentity = 'IDENTITY(1, 2, 3, 4, 5, 6)     --abc        d';
 const testColumnIndex = 'INDEX    test WITH (PAD_INDEX = ON) FILESTREAM_ON "NULL" ON [file_group_name] ';
@@ -22,6 +22,7 @@ const testColumn1 = 'field1 varchar(500) FILESTREAM IDENTITY(1,1) NOT NULL DEFAU
 const testColumn2 = '[created_at] varchar(255)';
 const testColumnDefinition = [testColumn1, testColumn2];
 
+const testTableConstraint = 'CONSTRAINT composite FOREIGN KEY (id, user_id) REFERENCES cool (cool_id, cool_user_id) ON UPDATE NO ACTION';
 const testTable1 = `CREATE TABLE [orders] (
   [id] int PRIMARY KEY IDENTITY(1, 1),
   [user_id] int UNIQUE NOT NULL,
@@ -37,11 +38,22 @@ const testTable2 = `CREATE TABLE [users] (
   [country_code] int NOT NULL
 )`;
 
-const testTable = [testTable1, testTable2];
+const testTable3 = `CREATE TABLE [orders] (
+  [id] int PRIMARY KEY IDENTITY(1, 1),
+  [user_id] int UNIQUE NOT NULL,
+  [status] nvarchar(255),
+  [created_at] varchar(255),
+  CONSTRAINT composite FOREIGN KEY (id, user_id) REFERENCES cool (cool_id, cool_user_id) ON UPDATE NO ACTION,
+  PRIMARY KEY CLUSTERED (id, user_id),
+  INDEX index1 UNIQUE (created_at, status)
+) 
+`;
+const testTable = [testTable1, testTable2, testTable3];
 
 prettyPrint(pIdentity, testIdentity, false);
 prettyPrint(pColumnIndex, testColumnIndex, false);
 prettyPrint(pColumnConstraint, testColumnConstraints, false);
 prettyPrint(pDataType, testDataType, false);
 prettyPrint(pColumnDefinition, testColumnDefinition, false);
+prettyPrint(pTableConstraint, testTableConstraint, false);
 prettyPrint(pCreateTable, testTable, true);

@@ -21,6 +21,7 @@ function makeIndex (columnNames, isUnique, isPk, indexName = null) {
       type: 'btree',
       name: indexName,
       unique: isUnique ? true : null,
+      pk: isPk ? true : null,
       columns,
     },
   };
@@ -32,7 +33,7 @@ const Lang = P.createLanguage({
     pIdentifier,
     BP.KeywordUnique.fallback(null),
     pKeywordClusteredOrNon.fallback(null),
-    BP.KeywordColumnStore,
+    BP.KeywordColumnStore.fallback(null),
     pColumnNames,
     (_keyword, indexName, isUnique, _clustered, _columnstore, columnNames) => {
       return makeIndex(columnNames, isUnique, null, indexName);

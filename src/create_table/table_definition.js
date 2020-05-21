@@ -79,10 +79,10 @@ const Lang = P.createLanguage({
   CreateTableKeywords: () => P.seq(BP.KeywordCreate, BP.KeywordTable),
   AsFileTableKeywords: () => P.seq(BP.KeywordAs, BP.KeywordFileTable),
   Line: (r) => P.alt(
-    pColumnDefinition,
+    r.SystemTimeTableOption,
     pTableConstraint,
     pTableIndex,
-    r.SystemTimeTableOption,
+    pColumnDefinition,
   ),
   SystemTimeTableOption: () => P.seq(BP.KeywordPeriodForST, makeList(pIdentifier)).result(null),
   USTableOptions: (r) => P.alt(pUSIndexOptions, r.TextImageTableOption),
@@ -91,4 +91,5 @@ const Lang = P.createLanguage({
 
 module.exports = {
   pCreateTable: Lang.CreateTable,
+  pTableConstraint,
 };
