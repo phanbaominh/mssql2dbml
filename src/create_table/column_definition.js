@@ -12,7 +12,7 @@ const Lang = P.createLanguage({
   ColumnDefinition: (r) => P.seqMap(
     pDotDelimitedName,
     r.DataType.skip(r.USColumnSetting),
-    P.alt(r.NullOrNot, r.Idendity, pColumnIndex, pColumnConstraint).many(),
+    P.alt(r.NullOrNot, r.Identity, pColumnIndex, pColumnConstraint).many().fallback(null),
     (fieldName, dataType, fieldSettings) => {
       const value = {};
       value[dataType.type] = dataType.value;
@@ -21,7 +21,7 @@ const Lang = P.createLanguage({
       });
       value.name = fieldName[0];
       return {
-        type: 'field',
+        type: 'fields',
         value,
       };
     },
@@ -36,7 +36,7 @@ const Lang = P.createLanguage({
 
   DataType: (r) => P.seqMap(
     pDotDelimitedName,
-    makeList(P.alt(r.DataTypeXML, pIdentifier)),
+    makeList(P.alt(r.DataTypeXML, pIdentifier)).fallback(null),
     (typeName, args) => {
       return {
         type: 'type',
@@ -59,7 +59,7 @@ const Lang = P.createLanguage({
         value,
       };
     }),
-  Idendity: () => P.seq(BP.KeywordIdendity, pNumberList.fallback(null))
+  Identity: () => P.seq(BP.KeywordIdentity, pNumberList.fallback(null))
   // eslint-disable-next-line no-unused-vars
     .map(_value => {
       return {
@@ -85,7 +85,7 @@ const Lang = P.createLanguage({
 
 });
 module.exports = {
-  pIdendity: Lang.Idendity,
+  pIdentity: Lang.Identity,
   pColumnIndex,
   pColumnConstraint,
   pDataType: Lang.DataType,

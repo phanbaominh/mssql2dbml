@@ -1,9 +1,65 @@
 const P = require('parsimmon');
 const BP = require('../base_parsers');
-const { pDotDelimitedName, pIdentifier } = require('../composite_parsers');
-const { makeList } = require('../utils');
+const { pDotDelimitedName, pIdentifier, pColumnNames } = require('../composite_parsers');
+const { makeList, makeNode } = require('../utils');
+
+function makeEndPoint (tableName, columnName, relation) {
+  return {
+    tableName: tableName[tableName.length - 1],
+    fieldNames: columnName,
+    relation,
+  };
+}
+
+function setOption (value, fkOptions) {
+  fkOptions.forEach(option => {
+    if (option.type.match(/ON[^\S\r\n]DELETE/i)) {
+      value.onDelete = option.setting;
+    }
+    if (option.type.match(/ON[^\S\r\n]UPDATE/i)) {
+      value.onUpdate = option.setting;
+    }
+  });
+}
 
 const Lang = P.createLanguage({
+  TableConstraintFK: (r) => P.seqMap(
+    BP.KeywordForeignKey.fallback(null),
+    r.TableEndpoint,
+    BP.KeywordReferences,
+    r.TableEndpoint,
+    pColumnNames,
+    r.FKOptions.fallback(null),
+    (_keyword1, endpoint1, _keyword2, tableName, endpoint2, fkOptions) => {
+      const value = {};
+
+      endpoint1.value.relation = '*';
+      endpoint1.value.tableName = tableName;
+      endpoint2.value.relation = '1';
+      endpoint2.value.tableName = tableName;
+
+      value.endpoints = [endpoint1.value, endpoint2.value];
+      setOption(value, fkOptions);
+
+      return {
+        type: 'refs',
+        value,
+      };
+    },
+  ),
+
+  TableEndpoint: () => P.seqMap(
+    pColumnNames,
+    (columnNames) => {
+      return {
+        type: 'endpoint',
+        value: {
+          fieldNames: columnNames,
+        },
+      };
+    },
+  ).thru(makeNode()),
+
   ColumnConstraintFK: (r) => P.seqMap(
     r.FKKeywords,
     pDotDelimitedName,
@@ -11,21 +67,8 @@ const Lang = P.createLanguage({
     r.FKOptions.fallback(null),
     (_unused, tableName, columnName, fkOptions) => {
       const value = {};
-      value.endpoint = {
-        tableName: tableName[tableName.length - 1],
-        fieldNames: [columnName],
-        relation: '*',
-      };
-
-      fkOptions.forEach(option => {
-        if (option.type.match(/ON[^\S\r\n]DELETE/i)) {
-          value.onDelete = option.setting;
-        }
-        if (option.type.match(/ON[^\S\r\n]UPDATE/i)) {
-          value.onUpdate = option.setting;
-        }
-      });
-
+      value.endpoint = makeEndPoint(tableName, columnName, '1');
+      setOption(value, fkOptions);
       return {
         type: 'inline_ref',
         value: [value],
@@ -52,4 +95,5 @@ const Lang = P.createLanguage({
 });
 module.exports = {
   pColumnConstraintFK: Lang.ColumnConstraintFK,
+  pTableConstraintFK: Lang.TableConstraintFK,
 };

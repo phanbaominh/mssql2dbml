@@ -1,5 +1,5 @@
 const P = require('parsimmon');
-const { makeList, streamline } = require('./utils');
+const { makeList, streamline, makeNode } = require('./utils');
 const BP = require('./base_parsers');
 const wss = require('./whitespaces');
 
@@ -11,7 +11,6 @@ const Lang = P.createLanguage({
 
   pOptionList: (r) => makeList(r.pOption),
   pOption: (r) => P.seq(r.pRegularIdentifier, BP.Equal, P.alt(r.pRegularIdentifier, r.pString)),
-
   pConst: (r) => P.alt(r.pString, r.pUnicode, r.pBinary, r.pScience, r.pMoney, r.pSigned, r.pNumber),
 
   pMoney: (r) => P.seq(P.regexp(/[+-]\$/), r.pNumber).thru(streamline('money')),
@@ -31,11 +30,20 @@ const Lang = P.createLanguage({
   pDelimitedIdentifier: (r) => P.alt(r.pDQDelimitedIdentifier, r.pBracketDelimitedIdentifier).skip(wss),
 
   pRegularIdentifier: () => P.regexp(/^[\w@#][\w@#$]*/).skip(wss),
-  pDQDelimitedIdentifier: () => P.regexp(/"[^"]*"/).skip(wss),
-  pBracketDelimitedIdentifier: () => P.regexp(/\[[^\]]*\]/).skip(wss),
+  pDQDelimitedIdentifier: () => P.seq(
+    P.string('"'),
+    P.regexp(/[^"]*/),
+    P.string('"'),
+  ).map(value => value[1]).skip(wss),
+  pBracketDelimitedIdentifier: () => P.seq(
+    P.string('['),
+    P.regexp(/[^\]]*/),
+    P.string(']'),
+  ).map(value => value[1]).skip(wss),
 
-  pFunction: (r) => P.seq(r.ppIdentifier, makeList(r.ppFunctionParam)),
-  pFunctionParam: (r) => P.alt(r.ppNumber, r.ppIdentifier),
+  pFunction: (r) => P.seq(r.pIdentifier, makeList(r.pFunctionParam, true))
+    .map(value => `${value[0]}(${value[1].join(',')})`).thru(streamline('function')),
+  pFunctionParam: (r) => P.alt(r.pNumber, r.pIdentifier),
 
   // SQL SERVER do not support boolean literal
 

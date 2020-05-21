@@ -25,6 +25,7 @@ exports.prettyPrint = function (parser, test, isPrint) {
 exports.makeNode = function () {
   return function (parser) {
     return P.seqMap(P.index, parser, P.index, (start, value, end) => {
+      if (typeof value.value !== 'object') value.value = { value: value.value };
       value.value.token = {
         start,
         end,
@@ -34,8 +35,14 @@ exports.makeNode = function () {
   };
 };
 
-exports.makeList = function (parser) {
-  return P.seq(LParen, parser.sepBy1(Comma), RParen).skip(wss).map(value => value[1]);
+exports.makeList = function (parser, isZero = false) {
+  let seperator = parser.sepBy1(Comma);
+  if (isZero) seperator = parser.sepBy(Comma);
+  return P.seq(LParen, seperator, RParen).map(value => {
+    // console.log(value[1]);
+    // console.log(value[2]);
+    return value[1];
+  });
 };
 
 exports.streamline = function (type) {

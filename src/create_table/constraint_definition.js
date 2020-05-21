@@ -2,18 +2,37 @@ const P = require('parsimmon');
 const BP = require('../base_parsers');
 const { pExpression } = require('../expression');
 const {
-  pIdentifier, pKeywordPKOrUnique, pKeywordClusteredOrNon, pConst, pFunction,
+  pIdentifier, pConst, pFunction,
 } = require('../composite_parsers');
-const { makeList, streamline } = require('../utils');
-const { pColumnConstraintFK } = require('./fk_definition');
-const { pUSIndexOptions } = require('./index_definition');
+const { makeList, streamline, makeNode } = require('../utils');
+const { pColumnConstraintFK, pTableConstraintFK } = require('./fk_definition');
+const { pColumnConstraintIndex, pTableConstraintIndex } = require('./index_definition');
 
 const Lang = P.createLanguage({
+  TableConstraint: (r) => P.seqMap(
+    r.ConstraintName.fallback(null),
+    r.TableConstraintOption,
+    (constraintName, option) => {
+      return {
+        type: option.type,
+        value: {
+          name: constraintName,
+          ...option.value,
+        },
+      };
+    },
+  ).thru(makeNode()),
+
+  TableConstraintOption: (r) => P.alt(
+    pTableConstraintFK,
+    pTableConstraintIndex,
+    r.ConstraintCheck,
+  ),
   ColumnConstraint: (r) => P.seq(r.ConstraintName.fallback(null), r.ColumnConstraintOption)
     .map(value => value[1]),
 
   ColumnConstraintOption: (r) => P.alt(
-    r.ColumnConstraintIndex,
+    pColumnConstraintIndex,
     pColumnConstraintFK,
     r.ConstraintCheck,
     r.ConstraintDefault,
@@ -33,7 +52,7 @@ const Lang = P.createLanguage({
   ConstraintCheckEnum: () => P.seqMap(
     pIdentifier,
     BP.LogicalOpIn,
-    makeList(pConst),
+    makeList(pConst.thru(makeNode())),
     (fieldName, _ununsed, values) => {
       const valuesProp = [];
       values.forEach(value => {
@@ -42,22 +61,15 @@ const Lang = P.createLanguage({
         });
       });
       return {
-        type: 'enum',
+        type: 'enums',
         value: {
           name: fieldName,
           values: valuesProp,
         },
       };
     },
-  ),
+  ).thru(makeNode()),
 
-  ColumnConstraintIndex: () => P.seqMap(
-    pKeywordPKOrUnique,
-    pKeywordClusteredOrNon.fallback(null),
-    (keyword) => {
-      return keyword;
-    },
-  ).skip(pUSIndexOptions),
 
   ConstraintDefault: (r) => P.seqMap(
     BP.KeywordDefault,
@@ -79,7 +91,6 @@ const Lang = P.createLanguage({
         value.type = 'expression';
       }
       value.value = constExpression.value;
-
       return {
         type: 'dbdefault',
         value,
@@ -87,10 +98,15 @@ const Lang = P.createLanguage({
     },
   ),
 
-  ConstExpr: () => P.alt(pConst, BP.KeywordNull, pFunction),
+  ConstExpr: () => P.seq(
+    BP.LParen.fallback(null),
+    P.alt(pFunction, pConst, BP.KeywordNull),
+    BP.RParen.fallback(null),
+  ).map(value => value[1]),
   ConstraintName: () => P.seq(BP.KeywordConstraint, pIdentifier),
 });
 
 module.exports = {
   pColumnConstraint: Lang.ColumnConstraint,
+  pTableConstraint: Lang.TableConstraint,
 };

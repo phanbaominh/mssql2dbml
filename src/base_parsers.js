@@ -1,6 +1,6 @@
 const { keyword, word } = require('./base_utils');
 
-exports.KeywordIdendity = keyword(/IDENDITY/i);
+exports.KeywordIdentity = keyword(/IDENTITY/i);
 exports.KeywordIndex = keyword(/INDEX/i);
 exports.KeywordWith = keyword(/WITH/i);
 exports.KeywordOn = keyword(/ON/i);
@@ -9,6 +9,7 @@ exports.KeywordFilestream_On = keyword(/FILESTREAM_ON/i);
 exports.KeywordPrimaryKey = keyword(/PRIMARY[^\S\r\n]+KEY/i);
 exports.KeywordClustered = keyword(/CLUSTERED/i);
 exports.KeywordNonclustered = keyword(/NONCLUSTERED/i);
+exports.KeywordColumnStore = keyword(/COLUMNSTORE/i);
 exports.KeywordReferences = keyword(/REFERENCES/i);
 exports.KeywordForeignKey = keyword(/FOREIGN[^\S\r\n]+KEY/i);
 exports.KeywordCheck = keyword(/CHECK/i);
@@ -41,7 +42,15 @@ exports.KeywordEnd = keyword(/END/i);
 exports.KeywordHidden = keyword(/HIDDEN/i);
 exports.KeywordAsc = keyword(/ASC/i);
 exports.KeywordDesc = keyword(/DESC/i);
+exports.KeywordTextImage_On = keyword(/TEXTIMAGE_ON/i);
+exports.KeywordPeriodForST = keyword(/PERIOD[^\S\r\n]+FOR[^\S\r\n]+SYSTEM_TIME/i);
+exports.KeywordFileTable = keyword(/FILETABLE/i);
+exports.KeywordTable = keyword(/TABLE/i);
+exports.KeywordCreate = keyword(/CREATE/i);
+exports.KeywordAs = keyword(/AS/i);
+
 exports.LogicalOpIn = keyword(/IN/i, true);
+
 
 exports.LessThan = word('<');
 exports.GreaterThan = word('>');
