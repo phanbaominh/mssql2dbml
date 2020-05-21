@@ -30,14 +30,14 @@ const testTable1 = `CREATE TABLE [orders] (
 )`;
 const testTable2 = `CREATE TABLE [users] (
   [id] int PRIMARY KEY IDENTITY(1, 1) REFERENCES orders (id),
-  [name] varchar(255),
+  [name] varchar(255) INDEX cool,
   [email] varchar(255) UNIQUE,
   [date_of_birth] datetime,
   [created_at] datetime DEFAULT now(),
   [country_code] int NOT NULL
 )`;
 
-const testTable = [testTable1]//, testTable2];
+const testTable = [testTable1, testTable2];
 
 prettyPrint(pIdentity, testIdentity, false);
 prettyPrint(pColumnIndex, testColumnIndex, false);

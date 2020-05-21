@@ -72,7 +72,7 @@ const Lang = P.createLanguage({
     // eslint-disable-next-line no-unused-vars
     (_keyword, indexName, _clustered) => {
       return {
-        type: 'index',
+        type: 'indexes',
         value: {
           type: 'btree',
           name: indexName,
