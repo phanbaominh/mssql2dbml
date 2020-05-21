@@ -1,7 +1,9 @@
 const P = require('parsimmon');
 const {
-  pLParen, pRParen, pComma, wss,
+  LParen, RParen, Comma,
 } = require('./base_parsers');
+
+const wss = require('./whitespaces');
 
 exports.prettyPrint = function (parser, test, isPrint) {
   let json;
@@ -20,7 +22,7 @@ exports.prettyPrint = function (parser, test, isPrint) {
   });
 };
 
-exports.makeNode = function (name) {
+exports.makeNode = function () {
   return function (parser) {
     return P.seqMap(P.index, parser, P.index, (start, value, end) => {
       value.value.token = {
@@ -33,7 +35,7 @@ exports.makeNode = function (name) {
 };
 
 exports.makeList = function (parser) {
-  return P.seq(pLParen, parser.sepBy1(pComma), pRParen).skip(wss).map(value => value[1]);
+  return P.seq(LParen, parser.sepBy1(Comma), RParen).skip(wss).map(value => value[1]);
 };
 
 exports.streamline = function (type) {

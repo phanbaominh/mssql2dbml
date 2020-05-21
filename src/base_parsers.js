@@ -1,73 +1,58 @@
 const P = require('parsimmon');
+const { keyword, word } = require('./base_utils');
 
+const Lang = P.createLanguage({
+  KeywordIdendity: () => keyword(/IDENDITY/i),
+  KeywordIndex: () => keyword(/INDEX/i),
+  KeywordWith: () => keyword(/WITH/i),
+  KeywordOn: () => keyword(/ON/i),
+  KeywordOff: () => keyword(/OFF/i),
+  KeywordFilestream_On: () => keyword(/FILESTREAM_ON/i),
+  KeywordPrimaryKey: () => keyword(/PRIMARY[^\S\r\n]+KEY/i),
+  KeywordClustered: () => keyword(/CLUSTERED/i),
+  KeywordNonclustered: () => keyword(/NONCLUSTERED/i),
+  KeywordReferences: () => keyword(/REFERENCES/i),
+  KeywordForeignKey: () => keyword(/FOREIGN[^\S\r\n]+KEY/i),
+  KeywordCheck: () => keyword(/CHECK/i),
+  KeywordConstraint: () => keyword(/CONSTRAINT/i),
+  KeywordUnique: () => keyword(/UNIQUE/i),
+  KeywordHash: () => keyword(/HASH/i),
+  KeywordBucket_Count: () => keyword(/BUCKET_COUNT/i),
+  KeywordNFR: () => keyword(/NOT[^\S\r\n]+FOR[^\S\r\n]+REPLICATION/),
+  KeywordOnDelete: () => keyword(/ON[^\S\r\n]+DELETE/i),
+  KeywordOnUpdate: () => keyword(/ON[^\S\r\n]+UPDATE/i),
+  KeywordSetNull: () => keyword(/SET[^\S\r\n]+NULL/i),
+  KeywordSetDefault: () => keyword(/SET[^\S\r\n]+DEFAULT/i),
+  KeywordNoAction: () => keyword(/NO[^\S\r\n]+ACTION/i),
+  KeywordCascade: () => keyword(/CASCADE/i),
+  KeywordContent: () => keyword(/CONTENT/i),
+  KeywordDocument: () => keyword(/DOCUMENT/i),
+  KeywordNull: () => keyword(/NULL/i),
+  KeywordNotNull: () => keyword(/NOT[^\S\r\n]+NULL/i),
+  KeywordDefault: () => keyword(/DEFAULT/i),
+  KeywordFilestream: () => keyword(/FILESTREAM/i),
+  KeywordCollate: () => keyword(/COLLATE/i),
+  KeywordSparse: () => keyword(/SPARSE/i),
+  KeywordRowGUIDCol: () => keyword(/ROWGUIDCOL/i),
+  KeywordMasked: () => keyword(/MASKED/i),
+  KeywordEncrypted: () => keyword(/ENCRYPTED/i),
+  KeywordFunction: () => keyword(/FUNCTION/i),
+  KeywordGeneratedAAR: () => keyword(/GENERATED ALWAYS AS ROW/i),
+  KeywordStart: () => keyword(/START/i),
+  KeywordEnd: () => keyword(/END/i),
+  KeywordHidden: () => keyword(/HIDDEN/i),
 
-const pWhiteSpace = P.regexp(/\s/);
-const pInlineComment = P.seq(P.string('--'), P.regexp(/[^\n\r]*/));
-const pMulLineComment = P.seq(P.string('/*'), P.regexp(/[\s\S]*(?=\*\/)/), P.string('*/'));
-const pWhiteSpaces = P.alt(pWhiteSpace, pInlineComment, pMulLineComment).many();
-const wss = pWhiteSpaces;
-const keywords = [];
-exports.wss = wss;
+  LogicalOpIn: () => keyword(/IN/i, true),
 
-const word = function (string) {
-  return P.string(string).skip(wss);
-};
+  LessThan: () => word('<'),
+  GreaterThan: () => word('>'),
+  LParen: () => word('('),
+  Comma: () => word(','),
+  RParen: () => word(')'),
+  DoubleQuote: () => word('"'),
+  LBracket: () => word('['),
+  RBracket: () => word(']'),
+  Equal: () => word('='),
+});
 
-const keyword = function (regex, op = false) {
-  if (!op) keywords.push(regex);
-  return P.regexp(regex).skip(wss);
-};
-
-exports.keywords = keywords;
-
-exports.pKeywordIdendity = keyword(/IDENDITY/i);
-exports.pKeywordIndex = keyword(/INDEX/i);
-exports.pKeywordWith = keyword(/WITH/i);
-exports.pKeywordOn = keyword(/ON/i);
-exports.pKeywordOff = keyword(/OFF/i);
-exports.pKeywordFilestream_On = keyword(/FILESTREAM_ON/i);
-exports.pKeywordPrimaryKey = keyword(/PRIMARY[^\S\r\n]+KEY/i);
-exports.pKeywordClustered = keyword(/CLUSTERED/i);
-exports.pKeywordNonclustered = keyword(/NONCLUSTERED/i);
-exports.pKeywordReferences = keyword(/REFERENCES/i);
-exports.pKeywordForeignKey = keyword(/FOREIGN[^\S\r\n]+KEY/i);
-exports.pKeywordCheck = keyword(/CHECK/i);
-exports.pKeywordConstraint = keyword(/CONSTRAINT/i);
-exports.pKeywordUnique = keyword(/UNIQUE/i);
-exports.pKeywordHash = keyword(/HASH/i);
-exports.pKeywordBucket_Count = keyword(/BUCKET_COUNT/i);
-exports.pKeywordNFR = keyword(/NOT[^\S\r\n]+FOR[^\S\r\n]+REPLICATION/);
-exports.pKeywordOnDelete = keyword(/ON[^\S\r\n]+DELETE/i);
-exports.pKeywordOnUpdate = keyword(/ON[^\S\r\n]+UPDATE/i);
-exports.pKeywordSetNull = keyword(/SET[^\S\r\n]+NULL/i);
-exports.pKeywordSetDefault = keyword(/SET[^\S\r\n]+DEFAULT/i);
-exports.pKeywordNoAction = keyword(/NO[^\S\r\n]+ACTION/i);
-exports.pKeywordCascade = keyword(/CASCADE/i);
-exports.pKeywordContent = keyword(/CONTENT/i);
-exports.pKeywordDocument = keyword(/DOCUMENT/i);
-exports.pKeywordNull = keyword(/NULL/i);
-exports.pKeywordNotNull = keyword(/NOT[^\S\r\n]+NULL/i);
-exports.pKeywordDefault = keyword(/DEFAULT/i);
-exports.pKeywordFilestream = keyword(/FILESTREAM/i);
-exports.pKeywordCollate = keyword(/COLLATE/i);
-exports.pKeywordSparse = keyword(/SPARSE/i);
-exports.pKeywordRowGUIDCol = keyword(/ROWGUIDCOL/i);
-exports.pKeywordMasked = keyword(/MASKED/i);
-exports.pKeywordEncrypted = keyword(/ENCRYPTED/i);
-exports.pKeywordFunction = keyword(/FUNCTION/i);
-exports.pKeywordGeneratedAAR = keyword(/GENERATED ALWAYS AS ROW/i);
-exports.pKeywordStart = keyword(/START/i);
-exports.pKeywordEnd = keyword(/END/i);
-exports.pKeywordHidden = keyword(/HIDDEN/i);
-
-exports.pLogicalOpIn = keyword(/IN/i, true);
-
-exports.pLessThan = word('<');
-exports.pGreaterThan = word('>');
-exports.pLParen = word('(');
-exports.pComma = word(',');
-exports.pRParen = word(')');
-exports.pDoubleQuote = word('"');
-exports.pLBracket = word('[');
-exports.pRBracket = word(']');
-exports.pEqual = word('=');
+module.exports = Lang;

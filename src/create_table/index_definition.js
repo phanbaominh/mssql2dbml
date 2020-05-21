@@ -5,9 +5,9 @@ const { makeNode } = require('../utils');
 
 const Lang = P.createLanguage({
   ColumnIndex: (r) => P.seqMap(
-    BP.pKeywordIndex,
-    CP.pIdentifier,
-    CP.pKeywordClusteredOrNon.fallback(null),
+    BP.KeywordIndex,
+    CP.Identifier,
+    CP.KeywordClusteredOrNon.fallback(null),
     // eslint-disable-next-line no-unused-vars
     (_keyword, columnName, _clustered) => {
       return {
@@ -27,9 +27,9 @@ const Lang = P.createLanguage({
 
   USIndexOptions: (r) => P.alt(r.WithIndexOption, r.ColumnIndexFilestream, r.OnIndexOption).many(),
 
-  WithIndexOption: () => P.seq(BP.pKeywordWith, CP.pOptionList),
-  OnIndexOption: () => P.seq(BP.pKeywordOn, P.alt(CP.pIdentifier, CP.pFunction)),
-  ColumnIndexFilestream: () => P.seq(BP.pKeywordFilestream_On, CP.pIdentifier),
+  WithIndexOption: () => P.seq(BP.KeywordWith, CP.OptionList),
+  OnIndexOption: () => P.seq(BP.KeywordOn, P.alt(CP.Identifier, CP.Function)),
+  ColumnIndexFilestream: () => P.seq(BP.KeywordFilestream_On, CP.Identifier),
 });
 module.exports = {
   pColumnIndex: Lang.ColumnIndex,

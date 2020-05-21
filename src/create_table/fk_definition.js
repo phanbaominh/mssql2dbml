@@ -6,14 +6,14 @@ const { makeList } = require('../utils');
 const Lang = P.createLanguage({
   ColumnConstraintFK: (r) => P.seqMap(
     r.FKKeywords,
-    CP.pDotDelimitedName,
-    makeList(CP.pIdentifier).fallback(null),
+    CP.DotDelimitedName,
+    makeList(CP.Identifier).fallback(null),
     r.FKOptions.fallback(null),
     (_unused, tableName, columnName, fkOptions) => {
       const value = {};
       value.endpoint = {
         tableName: tableName[tableName.length - 1],
-        fieldName: columnName,
+        fieldNames: [columnName],
         relation: '*',
       };
 
@@ -33,20 +33,20 @@ const Lang = P.createLanguage({
     },
   ),
   FKOptions: (r) => P.alt(r.FKOnDelete, r.FKOnUpdate, r.FKNFR).many(),
-  FKKeywords: () => P.seq(BP.pKeywordForeignKey.fallback(null), BP.pKeywordReferences),
+  FKKeywords: () => P.seq(BP.KeywordForeignKey.fallback(null), BP.KeywordReferences),
 
   FKOnDelete: (r) => P.seqObj(
-    ['type', BP.pKeywordOnDelete],
+    ['type', BP.KeywordOnDelete],
     ['setting', r.FKOnOptions],
   ),
   FKOnUpdate: (r) => P.seqObj(
-    ['type', BP.pKeywordOnUpdate],
+    ['type', BP.KeywordOnUpdate],
     ['setting', r.FKOnOptions],
   ),
-  FKNFR: () => BP.pKeywordNFR.map(value => {
+  FKNFR: () => BP.KeywordNFR.map(value => {
     return { type: value };
   }),
-  FKOnOptions: () => P.alt(BP.pKeywordNoAction, BP.pKeywordCascade, BP.pKeywordSetDefault, BP.pKeywordSetNull),
+  FKOnOptions: () => P.alt(BP.KeywordNoAction, BP.KeywordCascade, BP.KeywordSetDefault, BP.KeywordSetNull),
 
 
 });

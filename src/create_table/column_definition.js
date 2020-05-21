@@ -8,7 +8,7 @@ const { pColumnConstraint } = require('./constraint_definition');
 
 const Lang = P.createLanguage({
   ColumnDefinition: (r) => P.seqMap(
-    CP.pDotDelimitedName,
+    CP.DotDelimitedName,
     r.DataType.skip(r.USColumnSetting),
     P.alt(r.NullOrNot, r.Idendity, pColumnIndex, pColumnConstraint).many(),
     (fieldName, dataType, fieldSettings) => {
@@ -33,8 +33,8 @@ const Lang = P.createLanguage({
   ).many(),
 
   DataType: (r) => P.seqMap(
-    CP.pDotDelimitedName,
-    makeList(P.alt(r.DataTypeXML, CP.pIdentifier)),
+    CP.DotDelimitedName,
+    makeList(P.alt(r.DataTypeXML, CP.Identifier)),
     (typeName, args) => {
       return {
         type: 'type',
@@ -46,18 +46,18 @@ const Lang = P.createLanguage({
       };
     },
   ),
-  DataTypeXML: () => P.seq(P.alt(BP.pKeywordDocument, BP.pKeywordContent), CP.pIdentifier)
+  DataTypeXML: () => P.seq(P.alt(BP.KeywordDocument, BP.KeywordContent), CP.Identifier)
     .map(value => value.join(' ')),
 
 
-  NullOrNot: () => P.alt(BP.pKeywordNull.result(false), BP.pKeywordNotNull.result(true))
+  NullOrNot: () => P.alt(BP.KeywordNull.result(false), BP.KeywordNotNull.result(true))
     .map(value => {
       return {
         type: 'not_null',
         value,
       };
     }),
-  Idendity: () => P.seq(BP.pKeywordIdendity, CP.pNumberList.fallback(null))
+  Idendity: () => P.seq(BP.KeywordIdendity, CP.NumberList.fallback(null))
   // eslint-disable-next-line no-unused-vars
     .map(_value => {
       return {
@@ -67,17 +67,17 @@ const Lang = P.createLanguage({
     }),
 
   ColumnSetting1Word: () => P.alt(
-    BP.pKeywordFilestream,
-    BP.pKeywordNFR,
-    BP.pKeywordRowGUIDCol,
-    BP.pKeywordSparse,
+    BP.KeywordFilestream,
+    BP.KeywordNFR,
+    BP.KeywordRowGUIDCol,
+    BP.KeywordSparse,
   ),
-  ColumnSettingWith: () => P.seq(P.alt(BP.pKeywordMasked, BP.pKeywordEncrypted), BP.pKeywordWith, CP.pOptionList),
-  ColumnSettingCollate: () => P.seq(BP.pKeywordCollate, CP.pIdentifier),
+  ColumnSettingWith: () => P.seq(P.alt(BP.KeywordMasked, BP.KeywordEncrypted), BP.KeywordWith, CP.OptionList),
+  ColumnSettingCollate: () => P.seq(BP.KeywordCollate, CP.Identifier),
   ColumnSettingGAAR: () => P.seq(
-    BP.pKeywordGeneratedAAR,
-    P.alt(BP.pKeywordStart, BP.pKeywordEnd),
-    BP.pKeywordHidden.fallback(null),
+    BP.KeywordGeneratedAAR,
+    P.alt(BP.KeywordStart, BP.KeywordEnd),
+    BP.KeywordHidden.fallback(null),
   ),
 
 

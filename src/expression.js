@@ -1,5 +1,6 @@
 const P = require('parsimmon');
-const { keywords, wss } = require('./base_parsers');
+const { keywords } = require('./base_utils');
+const wss = require('./whitespaces');
 
 exports.pExpression = P((input, i) => {
   const slicedInput = input.slice(i);

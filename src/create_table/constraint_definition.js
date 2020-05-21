@@ -18,20 +18,20 @@ const Lang = P.createLanguage({
   ),
 
   ConstraintCheck: (r) => P.seq(
-    BP.pKeywordCheck,
-    BP.pKeywordNFR.fallback(null),
+    BP.KeywordCheck,
+    BP.KeywordNFR.fallback(null),
     r.ConstraintCheckExpr,
   ).map(value => value[2]),
 
 
-  ConstraintCheckExpr: (r) => P.seq(BP.pLParen,
+  ConstraintCheckExpr: (r) => P.seq(BP.LParen,
     P.alt(r.ConstraintCheckEnum, pExpression.thru(streamline('expression'))),
-    BP.pRParen.fallback(null)).map(value => value[1]),
+    BP.RParen.fallback(null)).map(value => value[1]),
 
   ConstraintCheckEnum: () => P.seqMap(
-    CP.pIdentifier,
-    BP.pLogicalOpIn,
-    makeList(CP.pConst),
+    CP.Identifier,
+    BP.LogicalOpIn,
+    makeList(CP.Const),
     (fieldName, _ununsed, values) => {
       const valuesProp = [];
       values.forEach(value => {
@@ -50,15 +50,15 @@ const Lang = P.createLanguage({
   ),
 
   ColumnConstraintIndex: () => P.seqMap(
-    CP.pKeywordPKOrUnique,
-    CP.pKeywordClusteredOrNon.fallback(null),
+    CP.KeywordPKOrUnique,
+    CP.KeywordClusteredOrNon.fallback(null),
     (keyword) => {
       return keyword;
     },
   ).skip(pUSIndexOptions),
 
   ConstraintDefault: (r) => P.seqMap(
-    BP.pKeywordDefault,
+    BP.KeywordDefault,
     r.ConstExpr,
     (_keyword, constExpression) => {
       const value = {};
@@ -85,8 +85,8 @@ const Lang = P.createLanguage({
     },
   ),
 
-  ConstExpr: () => P.alt(CP.pConst, BP.pKeywordNull, CP.pFunction),
-  ConstraintName: () => P.seq(BP.pKeywordConstraint, CP.pIdentifier),
+  ConstExpr: () => P.alt(CP.Const, BP.KeywordNull, CP.Function),
+  ConstraintName: () => P.seq(BP.KeywordConstraint, CP.Identifier),
 });
 
 module.exports = {
