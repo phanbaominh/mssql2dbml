@@ -1,6 +1,6 @@
 const { prettyPrint } = require('../utils.js');
 const {
-  pIdentity, pColumnIndex, pColumnConstraint, pDataType, pColumnDefinition,
+  pIdentity, pColumnIndex, pColumnConstraint, pDataType, pColumnsDefinition,
 } = require('./column_definition');
 
 const { pCreateTable, pTableConstraint } = require('./table_definition');
@@ -43,6 +43,7 @@ const testTable3 = `CREATE TABLE [orders] (
   [user_id] int UNIQUE NOT NULL,
   [status] nvarchar(255),
   [created_at] varchar(255),
+  [cool] as foo * bar,
   CONSTRAINT composite FOREIGN KEY (id, user_id) REFERENCES cool (cool_id, cool_user_id) ON UPDATE NO ACTION,
   PRIMARY KEY CLUSTERED (id, user_id),
   INDEX index1 UNIQUE (created_at, status)
@@ -54,6 +55,6 @@ prettyPrint(pIdentity, testIdentity, false);
 prettyPrint(pColumnIndex, testColumnIndex, false);
 prettyPrint(pColumnConstraint, testColumnConstraints, false);
 prettyPrint(pDataType, testDataType, false);
-prettyPrint(pColumnDefinition, testColumnDefinition, false);
+prettyPrint(pColumnsDefinition, testColumnDefinition, false);
 prettyPrint(pTableConstraint, testTableConstraint, false);
 prettyPrint(pCreateTable, testTable, true);

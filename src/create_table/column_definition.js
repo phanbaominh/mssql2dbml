@@ -7,8 +7,15 @@ const {
 const { makeNode, makeList } = require('../utils');
 const { pColumnIndex } = require('./index_definition');
 const { pColumnConstraint } = require('./constraint_definition');
+const pExpression = require('../expression');
 
 const Lang = P.createLanguage({
+  ColumnsDefinition: (r) => P.alt(
+    r.ComputedColumnDefinition.result(null),
+    r.ColumnSetDefinition.result(null),
+    r.ColumnDefinition,
+  ),
+
   ColumnDefinition: (r) => P.seqMap(
     pDotDelimitedName,
     r.DataType,
@@ -27,6 +34,17 @@ const Lang = P.createLanguage({
     },
   ).thru(makeNode()),
 
+  ColumnSetDefinition: () => P.seq(
+    pIdentifier,
+    BP.KeywordColumnSet,
+  ),
+  ComputedColumnDefinition: () => P.seq(
+    pIdentifier,
+    BP.KeywordAs,
+    pExpression,
+    P.seq(BP.KeywordPersisted, BP.KeywordNotNull.fallback(null)).fallback(null),
+    pColumnConstraint.fallback(null),
+  ),
   ColumnSetting: (r) => P.alt(
     r.NullOrNot,
     r.Identity,
@@ -96,5 +114,5 @@ module.exports = {
   pColumnIndex,
   pColumnConstraint,
   pDataType: Lang.DataType,
-  pColumnDefinition: Lang.ColumnDefinition,
+  pColumnsDefinition: Lang.ColumnsDefinition,
 };

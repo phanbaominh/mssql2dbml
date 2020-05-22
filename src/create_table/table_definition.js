@@ -7,7 +7,7 @@ const {
 const { makeNode, makeList } = require('../utils');
 const { pTableConstraint } = require('./constraint_definition');
 const { pTableIndex, pUSIndexOption } = require('./index_definition');
-const { pColumnDefinition } = require('./column_definition');
+const { pColumnsDefinition } = require('./column_definition');
 
 function pushOut (lineValue, fieldValue, tableName) {
   if (fieldValue.indexes) {
@@ -48,8 +48,10 @@ function getLinesValue (lines, tableName) {
     indexes: [],
   };
   lines.forEach(line => {
-    if (line.type === 'fields') pushOut(value, line.value, tableName);
-    value[line.type].push(line.value);
+    if (line) {
+      if (line.type === 'fields') pushOut(value, line.value, tableName);
+      value[line.type].push(line.value);
+    }
   });
   return {
     type: 'lines',
@@ -82,7 +84,7 @@ const Lang = P.createLanguage({
     r.SystemTimeTableOption,
     pTableConstraint,
     pTableIndex,
-    pColumnDefinition,
+    pColumnsDefinition,
   ),
   SystemTimeTableOption: () => P.seq(BP.KeywordPeriodForST, makeList(pIdentifier)).result(null),
   USTableOptions: (r) => P.alt(pUSIndexOption, r.TextImageTableOption).many(),

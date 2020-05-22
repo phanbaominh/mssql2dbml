@@ -1,6 +1,6 @@
 const P = require('parsimmon');
 const BP = require('../base_parsers');
-const { pExpression } = require('../expression');
+const pExpression = require('../expression');
 const {
   pIdentifier, pConst, pFunction,
 } = require('../composite_parsers');

@@ -48,7 +48,8 @@ exports.KeywordFileTable = keyword(/FILETABLE/i);
 exports.KeywordTable = keyword(/TABLE/i);
 exports.KeywordCreate = keyword(/CREATE/i);
 exports.KeywordAs = keyword(/AS/i);
-
+exports.KeywordPersisted = keyword(/PERSISTED/i);
+exports.KeywordColumnSet = keyword(/XML[^\S\r\n]+COLUMN_SET[^\S\r\n]+FOR[^\S\r\n]+ALL_SPARSE_COLUMNS/i);
 exports.LogicalOpIn = keyword(/IN/i, true);
 
 
