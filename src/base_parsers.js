@@ -50,7 +50,12 @@ exports.KeywordCreate = keyword(/CREATE/i);
 exports.KeywordAs = keyword(/AS/i);
 exports.KeywordPersisted = keyword(/PERSISTED/i);
 exports.KeywordColumnSet = keyword(/XML[^\S\r\n]+COLUMN_SET[^\S\r\n]+FOR[^\S\r\n]+ALL_SPARSE_COLUMNS/i);
+exports.KeywordInclude = keyword(/INCLUDE/i);
+exports.KeywordIn = keyword(/IN/i);
+exports.KeywordWhere = keyword(/WHERE/i);
+
 exports.LogicalOpIn = keyword(/IN/i, true);
+exports.LogicalOpAnd = keyword(/AND/i, true);
 
 
 exports.LessThan = word('<');

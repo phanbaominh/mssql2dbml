@@ -4,6 +4,7 @@ const {
 } = require('./column_definition');
 
 const { pCreateTable, pTableConstraint } = require('./create_table');
+const { CreateIndex } = require('./create_index');
 
 const testIdentity = 'IDENTITY(1, 2, 3, 4, 5, 6)     --abc        d';
 const testColumnIndex = 'INDEX    test';
@@ -50,12 +51,21 @@ const testTable3 = `CREATE TABLE [orders] (
   INDEX index1 UNIQUE (created_at, status)
 ) 
 `;
-const testTable = [testTable1, testTable2, testTable3];
+const testCreateTable = [testTable1, testTable2, testTable3];
 
+const testCreateIndex = '\
+CREATE UNIQUE CLUSTERED INDEX index1 ON table1 (column1 ASC, column2)\
+ INCLUDE (col, col2)\
+ WHERE col1 > \'col2\'\
+ WITH (PAD_INDEX = ON, FILLFACTOR = true)\
+ ON COOL\
+ FILESTREAM_ON "NULL"\
+';
 prettyPrint(pIdentity, testIdentity, false);
 prettyPrint(pColumnIndex, testColumnIndex, false);
 prettyPrint(pColumnConstraint, testColumnConstraints, false);
 prettyPrint(pDataType, testDataType, false);
 prettyPrint(pColumnsDefinition, testColumnDefinition, false);
 prettyPrint(pTableConstraint, testTableConstraint, false);
-prettyPrint(pCreateTable, testTable, true);
+prettyPrint(pCreateTable, testCreateTable, false);
+prettyPrint(CreateIndex, testCreateIndex, true);

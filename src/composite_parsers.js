@@ -11,6 +11,8 @@ const Lang = P.createLanguage({
 
   pOptionList: (r) => makeList(r.pOption),
   pOption: (r) => P.seq(r.pRegularIdentifier, BP.Equal, P.alt(r.pRegularIdentifier, r.pString)),
+
+  pComparsionOp: () => P.regex(/IS|IS[^\S\r\n]+NOT|=|<>|!=|>|>=|!>|<|<=|!</i).skip(wss),
   pConst: (r) => P.alt(r.pString, r.pUnicode, r.pBinary, r.pScience, r.pMoney, r.pSigned, r.pNumber),
 
   pMoney: (r) => P.seq(P.regexp(/[+-]\$/), r.pNumber).thru(streamline('money')),
