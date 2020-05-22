@@ -59,7 +59,14 @@ exports.KeywordConnection = keyword(/CONNECTION/i);
 exports.KeywordTo = keyword(/TO/i);
 exports.KeywordAlter = keyword(/ALTER/i);
 exports.KeywordAdd = keyword(/ADD/i);
-
+exports.KeywordSet = keyword(/SET/i);
+exports.KeywordRebuild = keyword(/REBUILD/i);
+exports.KeywordSwitch = keyword(/SWITCH/i);
+exports.KeywordEnable = keyword(/ENABLE/i);
+exports.KeywordDisable = keyword(/DISABLE/i);
+exports.KeywordNoCheck = keyword(/NOCHECK/i);
+exports.KeywordDrop = keyword(/DROP/i);
+exports.KeywordAlterColumn = keyword(/ALTER[^\S\r\n]+COLUMN/i);
 exports.LogicalOpIn = keyword(/IN/i, true);
 exports.LogicalOpAnd = keyword(/AND/i, true);
 

@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const { makeTableConstraint } = require('../constraint_definition');
 
 function handleAlterTableResult (_keyword, tableName, result) {
   if (!result) return null;
@@ -17,6 +16,5 @@ function handleAlterTableResult (_keyword, tableName, result) {
 }
 
 module.exports = {
-  makeTableConstraint,
   handleAlterTableResult,
 };

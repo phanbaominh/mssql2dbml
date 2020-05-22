@@ -5,7 +5,7 @@ const {
 } = require('../composite_parsers');
 const { makeNode, makeList } = require('../utils');
 const { pTableConstraint } = require('../constraint_definition');
-const { pTableIndex, pUSIndexOption } = require('../index_definition');
+const { pTableIndex, pIgnoredIndexOption } = require('../index_definition');
 const { pColumnsDefinition } = require('../column_definition');
 const A = require('./actions');
 
@@ -17,7 +17,7 @@ const Lang = P.createLanguage({
     r.AsFileTableKeywords.fallback(null),
     makeList(r.Line),
     A.makeTable,
-  ).thru(makeNode()).skip(r.USTableOptions),
+  ).thru(makeNode()).skip(r.IgnoredTableOptions),
 
   CreateTableKeywords: () => P.seq(BP.KeywordCreate, BP.KeywordTable),
   AsFileTableKeywords: () => P.seq(BP.KeywordAs, BP.KeywordFileTable),
@@ -28,7 +28,7 @@ const Lang = P.createLanguage({
     pColumnsDefinition,
   ),
   SystemTimeTableOption: () => P.seq(BP.KeywordPeriodForST, makeList(pIdentifier)).result(null),
-  USTableOptions: (r) => P.alt(pUSIndexOption, r.TextImageTableOption).many(),
+  IgnoredTableOptions: (r) => P.alt(pIgnoredIndexOption, r.TextImageTableOption).many(),
   TextImageTableOption: () => P.seq(BP.KeywordTextImage_On, pIdentifier),
 });
 

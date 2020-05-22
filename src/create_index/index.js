@@ -5,7 +5,7 @@ const {
 } = require('../composite_parsers');
 const { makeNode, makeList } = require('../utils');
 const A = require('./actions');
-const { pUSIndexOption } = require('../index_definition');
+const { pIgnoredIndexOption } = require('../index_definition');
 
 const Lang = P.createLanguage({
 
@@ -19,8 +19,8 @@ const Lang = P.createLanguage({
     pDotDelimitedName,
     pColumnNames,
     A.makeIndex,
-  ).thru(makeNode()).skip(r.USCreateIndexOptions),
-  USCreateIndexOptions: (r) => P.alt(pUSIndexOption, r.IncludeIndexOption, r.WhereIndexOption).many(),
+  ).thru(makeNode()).skip(r.IgnoredCreateIndexOptions),
+  IgnoredCreateIndexOptions: (r) => P.alt(pIgnoredIndexOption, r.IncludeIndexOption, r.WhereIndexOption).many(),
 
   IncludeIndexOption: () => P.seq(BP.KeywordInclude, pColumnNames),
 

@@ -16,28 +16,28 @@ const Lang = P.createLanguage({
     BP.KeywordColumnStore.fallback(null),
     pColumnNames,
     A.makeTableIndex,
-  ).thru(makeNode()).skip(r.USIndexOptions),
+  ).thru(makeNode()).skip(r.IgnoredIndexOptions),
 
   TableConstraintIndex: (r) => P.seqMap(
     pKeywordPKOrUnique,
     pKeywordClusteredOrNon.fallback(null),
     pColumnNames,
     A.makeTableConstraintIndex,
-  ).thru(makeNode()).skip(r.USIndexOptions),
+  ).thru(makeNode()).skip(r.IgnoredIndexOptions),
 
   ColumnConstraintIndex: (r) => P.seq(
     pKeywordPKOrUnique,
-    r.USIndexOptions,
-  ).skip(r.USIndexOptions).map(value => value[0]),
+    r.IgnoredIndexOptions,
+  ).skip(r.IgnoredIndexOptions).map(value => value[0]),
 
   ColumnIndex: (r) => P.seqMap(
     BP.KeywordIndex,
     pIdentifier,
     A.makeColumnIndex,
-  ).thru(makeNode()).skip(r.USIndexOptions),
+  ).thru(makeNode()).skip(r.IgnoredIndexOptions),
 
-  USIndexOptions: (r) => P.alt(pKeywordClusteredOrNon, r.USIndexOption).many(),
-  USIndexOption: (r) => P.alt(
+  IgnoredIndexOptions: (r) => P.alt(pKeywordClusteredOrNon, r.IgnoredIndexOption).many(),
+  IgnoredIndexOption: (r) => P.alt(
     r.WithIndexOption,
     r.ColumnIndexFilestream,
     r.OnIndexOption,
@@ -50,7 +50,7 @@ const Lang = P.createLanguage({
 });
 module.exports = {
   pColumnIndex: Lang.ColumnIndex,
-  pUSIndexOption: Lang.USIndexOption,
+  pIgnoredIndexOption: Lang.IgnoredIndexOption,
   pTableIndex: Lang.TableIndex,
   pColumnConstraintIndex: Lang.ColumnConstraintIndex,
   pTableConstraintIndex: Lang.TableConstraintIndex,

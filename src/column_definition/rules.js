@@ -20,7 +20,7 @@ const Lang = P.createLanguage({
   ColumnDefinition: (r) => P.seqMap(
     pDotDelimitedName,
     r.DataType,
-    P.alt(r.ColumnSetting, r.USColumnSetting.result(null)).many().fallback(null),
+    P.alt(r.ColumnSetting, r.IgnoredColumnSetting.result(null)).many().fallback(null),
     A.makeColumn,
   ).thru(makeNode()),
 
@@ -42,7 +42,7 @@ const Lang = P.createLanguage({
     pColumnConstraint,
   ),
 
-  USColumnSetting: (r) => P.alt(
+  IgnoredColumnSetting: (r) => P.alt(
     r.ColumnSetting1Word,
     r.ColumnSettingWith,
     r.ColumnSettingGAAR,
