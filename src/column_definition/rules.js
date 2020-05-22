@@ -1,13 +1,14 @@
 const P = require('parsimmon');
-const _ = require('lodash');
 const BP = require('../base_parsers');
 const {
   pDotDelimitedName, pIdentifier, pNumberList, pOptionList,
 } = require('../composite_parsers');
-const { makeNode, makeList } = require('../utils');
-const { pColumnIndex } = require('./index_definition');
-const { pColumnConstraint } = require('./constraint_definition');
+const { makeNode, makeList, streamline } = require('../utils');
+const { pColumnIndex } = require('../index_definition');
+const { pColumnConstraint } = require('../constraint_definition');
 const pExpression = require('../expression');
+const A = require('./actions');
+
 
 const Lang = P.createLanguage({
   ColumnsDefinition: (r) => P.alt(
@@ -20,18 +21,7 @@ const Lang = P.createLanguage({
     pDotDelimitedName,
     r.DataType,
     P.alt(r.ColumnSetting, r.USColumnSetting.result(null)).many().fallback(null),
-    (fieldName, dataType, fieldSettings) => {
-      const value = {};
-      value[dataType.type] = dataType.value;
-      fieldSettings.forEach(setting => {
-        if (setting) value[setting.type] = setting.value;
-      });
-      value.name = fieldName[0];
-      return {
-        type: 'fields',
-        value,
-      };
-    },
+    A.makeColumn,
   ).thru(makeNode()),
 
   ColumnSetDefinition: () => P.seq(
@@ -62,36 +52,17 @@ const Lang = P.createLanguage({
   DataType: (r) => P.seqMap(
     pDotDelimitedName,
     makeList(P.alt(r.DataTypeXML, pIdentifier)).fallback(null),
-    (typeName, args) => {
-      return {
-        type: 'type',
-        value: {
-          type_name: _.last(typeName),
-          schemaName: typeName.length > 1 ? typeName[0] : null,
-          args: args ? args.join(', ') : null,
-        },
-      };
-    },
+    A.makeDataType,
   ),
   DataTypeXML: () => P.seq(P.alt(BP.KeywordDocument, BP.KeywordContent), pIdentifier)
-    .map(value => value.join(' ')),
+    .tieWith(' '),
 
 
   NullOrNot: () => P.alt(BP.KeywordNull.result(false), BP.KeywordNotNull.result(true))
-    .map(value => {
-      return {
-        type: 'not_null',
-        value,
-      };
-    }),
-  Identity: () => P.seq(BP.KeywordIdentity, pNumberList.fallback(null))
-  // eslint-disable-next-line no-unused-vars
-    .map(_value => {
-      return {
-        type: 'increment',
-        value: true,
-      };
-    }),
+    .thru(streamline('not_null')),
+
+  Identity: () => BP.KeywordIdentity.result(true).skip(pNumberList.fallback(null))
+    .thru(streamline('increment')),
 
   ColumnSetting1Word: () => P.alt(
     BP.KeywordFilestream,

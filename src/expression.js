@@ -7,7 +7,7 @@ const {
   LParen, RParen,
 } = require('./base_parsers');
 const wss = require('./whitespaces');
-const { prettyPrint, streamline } = require('./utils');
+const { streamline } = require('./utils');
 
 function tokenize (parser) {
   return parser.many().map(value => value.join('')).fallback(null).thru(streamline('token'));

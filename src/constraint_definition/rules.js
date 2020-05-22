@@ -5,22 +5,16 @@ const {
   pIdentifier, pConst, pFunction,
 } = require('../composite_parsers');
 const { makeList, streamline, makeNode } = require('../utils');
-const { pColumnConstraintFK, pTableConstraintFK } = require('./fk_definition');
-const { pColumnConstraintIndex, pTableConstraintIndex } = require('./index_definition');
+const { pColumnConstraintFK, pTableConstraintFK } = require('../fk_definition');
+const { pColumnConstraintIndex, pTableConstraintIndex } = require('../index_definition');
+const A = require('./actions');
+
 
 const Lang = P.createLanguage({
   TableConstraint: (r) => P.seqMap(
     r.ConstraintName.fallback(null),
     r.TableConstraintOption,
-    (constraintName, option) => {
-      return {
-        type: option.type,
-        value: {
-          name: constraintName,
-          ...option.value,
-        },
-      };
-    },
+    A.makeTableConstraint,
   ).thru(makeNode()),
 
   TableConstraintOption: (r) => P.alt(
@@ -53,49 +47,14 @@ const Lang = P.createLanguage({
     pIdentifier,
     BP.LogicalOpIn,
     makeList(pConst.thru(makeNode())),
-    (fieldName, _ununsed, values) => {
-      const valuesProp = [];
-      values.forEach(value => {
-        valuesProp.push({
-          name: value.value,
-        });
-      });
-      return {
-        type: 'enums',
-        value: {
-          name: fieldName,
-          values: valuesProp,
-        },
-      };
-    },
+    A.makeConstraintCheckEnum,
   ).thru(makeNode()),
 
 
   ConstraintDefault: (r) => P.seqMap(
     BP.KeywordDefault,
     r.ConstExpr,
-    (_keyword, constExpression) => {
-      const value = {};
-      if (constExpression.type) {
-        switch (constExpression.type) {
-          case 'string':
-          case 'number':
-            value.type = constExpression.type;
-            break;
-
-          default:
-            value.type = 'expression';
-            break;
-        }
-      } else {
-        value.type = 'expression';
-      }
-      value.value = constExpression.value;
-      return {
-        type: 'dbdefault',
-        value,
-      };
-    },
+    A.makeDefaultConstraint,
   ),
 
   ConstExpr: () => P.seq(

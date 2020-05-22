@@ -4,28 +4,8 @@ const {
   pIdentifier, pKeywordClusteredOrNon, pFunction, pOptionList, pColumnNames, pKeywordPKOrUnique,
 } = require('../composite_parsers');
 const { makeNode } = require('../utils');
+const A = require('./actions');
 
-function makeIndex (columnNames, isUnique, isPk, indexName = null) {
-  const columns = [];
-
-  columnNames.forEach(column => {
-    columns.push({
-      value: column,
-      type: 'column',
-    });
-  });
-
-  return {
-    type: 'indexes',
-    value: {
-      type: 'btree',
-      name: indexName,
-      unique: isUnique ? true : null,
-      pk: isPk ? true : null,
-      columns,
-    },
-  };
-}
 const Lang = P.createLanguage({
 
   TableIndex: (r) => P.seqMap(
@@ -35,53 +15,27 @@ const Lang = P.createLanguage({
     pKeywordClusteredOrNon.fallback(null),
     BP.KeywordColumnStore.fallback(null),
     pColumnNames,
-    (_keyword, indexName, isUnique, _clustered, _columnstore, columnNames) => {
-      return makeIndex(columnNames, isUnique, null, indexName);
-    },
+    A.makeTableIndex,
   ).thru(makeNode()).skip(r.USIndexOptions),
 
   TableConstraintIndex: (r) => P.seqMap(
     pKeywordPKOrUnique,
     pKeywordClusteredOrNon.fallback(null),
     pColumnNames,
-    (keyword, _keyword, columnNames) => {
-      let isPk = null;
-      let isUnique = null;
-
-      if (keyword.type === 'pk') {
-        isPk = true;
-      } else if (keyword.type === 'unique') {
-        isUnique = true;
-      }
-
-      return makeIndex(columnNames, isUnique, isPk);
-    },
+    A.makeTableConstraintIndex,
   ).thru(makeNode()).skip(r.USIndexOptions),
 
-  ColumnConstraintIndex: (r) => P.seqMap(
+  ColumnConstraintIndex: (r) => P.seq(
     pKeywordPKOrUnique,
     r.USIndexOptions,
-    (keyword) => {
-      return keyword;
-    },
-  ).skip(r.USIndexOptions),
+  ).skip(r.USIndexOptions).map(value => value[0]),
 
   ColumnIndex: (r) => P.seqMap(
     BP.KeywordIndex,
     pIdentifier,
-    // eslint-disable-next-line no-unused-vars
-    (_keyword, indexName) => {
-      return {
-        type: 'indexes',
-        value: {
-          type: 'btree',
-          name: indexName,
-          columns: [
-          ],
-        },
-      };
-    },
+    A.makeColumnIndex,
   ).thru(makeNode()).skip(r.USIndexOptions),
+
   USIndexOptions: (r) => P.alt(pKeywordClusteredOrNon, r.USIndexOption).many(),
   USIndexOption: (r) => P.alt(r.WithIndexOption, r.ColumnIndexFilestream, r.OnIndexOption),
   WithIndexOption: () => P.seq(BP.KeywordWith, pOptionList),
