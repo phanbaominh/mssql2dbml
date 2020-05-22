@@ -11,13 +11,13 @@ const { pColumnConstraint } = require('./constraint_definition');
 const Lang = P.createLanguage({
   ColumnDefinition: (r) => P.seqMap(
     pDotDelimitedName,
-    r.DataType.skip(r.USColumnSetting),
-    P.alt(r.NullOrNot, r.Identity, pColumnIndex, pColumnConstraint).many().fallback(null),
+    r.DataType,
+    P.alt(r.ColumnSetting, r.USColumnSetting.result(null)).many().fallback(null),
     (fieldName, dataType, fieldSettings) => {
       const value = {};
       value[dataType.type] = dataType.value;
       fieldSettings.forEach(setting => {
-        value[setting.type] = setting.value;
+        if (setting) value[setting.type] = setting.value;
       });
       value.name = fieldName[0];
       return {
@@ -25,14 +25,21 @@ const Lang = P.createLanguage({
         value,
       };
     },
-  ).skip(r.USColumnSetting).thru(makeNode()),
+  ).thru(makeNode()),
+
+  ColumnSetting: (r) => P.alt(
+    r.NullOrNot,
+    r.Identity,
+    pColumnIndex,
+    pColumnConstraint,
+  ),
 
   USColumnSetting: (r) => P.alt(
     r.ColumnSetting1Word,
     r.ColumnSettingWith,
     r.ColumnSettingGAAR,
     r.ColumnSettingCollate,
-  ).many(),
+  ),
 
   DataType: (r) => P.seqMap(
     pDotDelimitedName,

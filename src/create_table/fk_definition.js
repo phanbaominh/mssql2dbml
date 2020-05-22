@@ -1,8 +1,8 @@
 const P = require('parsimmon');
+const _ = require('lodash');
 const BP = require('../base_parsers');
 const { pDotDelimitedName, pIdentifier, pColumnNames } = require('../composite_parsers');
 const { makeList, makeNode } = require('../utils');
-const _ = require('lodash');
 
 function makeEndPoint (tableName, columnName, relation) {
   return {

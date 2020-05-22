@@ -50,7 +50,7 @@ const Lang = P.createLanguage({
 
       if (keyword.type === 'pk') {
         isPk = true;
-      } else {
+      } else if (keyword.type === 'unique') {
         isUnique = true;
       }
 
@@ -60,7 +60,7 @@ const Lang = P.createLanguage({
 
   ColumnConstraintIndex: (r) => P.seqMap(
     pKeywordPKOrUnique,
-    pKeywordClusteredOrNon.fallback(null),
+    r.USIndexOptions,
     (keyword) => {
       return keyword;
     },
@@ -69,9 +69,8 @@ const Lang = P.createLanguage({
   ColumnIndex: (r) => P.seqMap(
     BP.KeywordIndex,
     pIdentifier,
-    pKeywordClusteredOrNon.fallback(null),
     // eslint-disable-next-line no-unused-vars
-    (_keyword, indexName, _clustered) => {
+    (_keyword, indexName) => {
       return {
         type: 'indexes',
         value: {
@@ -83,15 +82,15 @@ const Lang = P.createLanguage({
       };
     },
   ).thru(makeNode()).skip(r.USIndexOptions),
-
-  USIndexOptions: (r) => P.alt(r.WithIndexOption, r.ColumnIndexFilestream, r.OnIndexOption).many(),
+  USIndexOptions: (r) => P.alt(pKeywordClusteredOrNon, r.USIndexOption).many(),
+  USIndexOption: (r) => P.alt(r.WithIndexOption, r.ColumnIndexFilestream, r.OnIndexOption),
   WithIndexOption: () => P.seq(BP.KeywordWith, pOptionList),
   OnIndexOption: () => P.seq(BP.KeywordOn, P.alt(pIdentifier, pFunction)),
   ColumnIndexFilestream: () => P.seq(BP.KeywordFilestream_On, pIdentifier),
 });
 module.exports = {
   pColumnIndex: Lang.ColumnIndex,
-  pUSIndexOptions: Lang.USIndexOptions,
+  pUSIndexOption: Lang.USIndexOption,
   pTableIndex: Lang.TableIndex,
   pColumnConstraintIndex: Lang.ColumnConstraintIndex,
   pTableConstraintIndex: Lang.TableConstraintIndex,

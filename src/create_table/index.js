@@ -6,7 +6,7 @@ const {
 const { pCreateTable, pTableConstraint } = require('./table_definition');
 
 const testIdentity = 'IDENTITY(1, 2, 3, 4, 5, 6)     --abc        d';
-const testColumnIndex = 'INDEX    test WITH (PAD_INDEX = ON) FILESTREAM_ON "NULL" ON [file_group_name] ';
+const testColumnIndex = 'INDEX    test';
 
 const testColumnConstraintPK = 'CONSTRAINT const   PRIMARY KEY CLUSTERED WITH   (PAD_INDEX = ON) FILESTREAM_ON "NULL" ON [file_group_name]';
 const testColumnConstraintFK = 'FOREIGN KEY REFERENCES schema1.table1 (column1) ON DELETE NO ACTION ON UPDATE CASCADE NOT FOR REPLICATION';

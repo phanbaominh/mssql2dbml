@@ -6,7 +6,7 @@ const {
 } = require('../composite_parsers');
 const { makeNode, makeList } = require('../utils');
 const { pTableConstraint } = require('./constraint_definition');
-const { pTableIndex, pUSIndexOptions } = require('./index_definition');
+const { pTableIndex, pUSIndexOption } = require('./index_definition');
 const { pColumnDefinition } = require('./column_definition');
 
 function pushOut (lineValue, fieldValue, tableName) {
@@ -85,7 +85,7 @@ const Lang = P.createLanguage({
     pColumnDefinition,
   ),
   SystemTimeTableOption: () => P.seq(BP.KeywordPeriodForST, makeList(pIdentifier)).result(null),
-  USTableOptions: (r) => P.alt(pUSIndexOptions, r.TextImageTableOption),
+  USTableOptions: (r) => P.alt(pUSIndexOption, r.TextImageTableOption).many(),
   TextImageTableOption: () => P.seq(BP.KeywordTextImage_On, pIdentifier),
 });
 
