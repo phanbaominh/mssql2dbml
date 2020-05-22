@@ -68,4 +68,7 @@ const Lang = P.createLanguage({
 module.exports = {
   pColumnConstraint: Lang.ColumnConstraint,
   pTableConstraint: Lang.TableConstraint,
+  pConstraintCheck: Lang.ConstraintCheck,
+  pConstraintName: Lang.ConstraintName,
+  pConstExpr: Lang.ConstExpr,
 };

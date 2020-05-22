@@ -37,8 +37,14 @@ const Lang = P.createLanguage({
   ).thru(makeNode()).skip(r.USIndexOptions),
 
   USIndexOptions: (r) => P.alt(pKeywordClusteredOrNon, r.USIndexOption).many(),
-  USIndexOption: (r) => P.alt(r.WithIndexOption, r.ColumnIndexFilestream, r.OnIndexOption),
+  USIndexOption: (r) => P.alt(
+    r.WithIndexOption,
+    r.ColumnIndexFilestream,
+    r.OnIndexOption,
+    r.WithFillFactorOption,
+  ),
   WithIndexOption: () => P.seq(BP.KeywordWith, pOptionList),
+  WithFillFactorOption: () => P.seq(BP.KeywordWith, pIdentifier),
   OnIndexOption: () => P.seq(BP.KeywordOn, P.alt(pIdentifier, pFunction)),
   ColumnIndexFilestream: () => P.seq(BP.KeywordFilestream_On, pIdentifier),
 });

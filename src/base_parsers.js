@@ -53,6 +53,12 @@ exports.KeywordColumnSet = keyword(/XML[^\S\r\n]+COLUMN_SET[^\S\r\n]+FOR[^\S\r\n
 exports.KeywordInclude = keyword(/INCLUDE/i);
 exports.KeywordIn = keyword(/IN/i);
 exports.KeywordWhere = keyword(/WHERE/i);
+exports.KeywordFor = keyword(/FOR/i);
+exports.KeywordWithValues = keyword(/WITH[^\S\r\n]+VALUES/i);
+exports.KeywordConnection = keyword(/CONNECTION/i);
+exports.KeywordTo = keyword(/TO/i);
+exports.KeywordAlter = keyword(/ALTER/i);
+exports.KeywordAdd = keyword(/ADD/i);
 
 exports.LogicalOpIn = keyword(/IN/i, true);
 exports.LogicalOpAnd = keyword(/AND/i, true);

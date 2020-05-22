@@ -25,6 +25,7 @@ exports.prettyPrint = function (parser, test, isPrint) {
 exports.makeNode = function () {
   return function (parser) {
     return P.seqMap(P.index, parser, P.index, (start, value, end) => {
+      if (!value) return parser;
       if (typeof value.value !== 'object') value.value = { value: value.value };
       value.value.token = {
         start,

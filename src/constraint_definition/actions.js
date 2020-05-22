@@ -38,6 +38,7 @@ function makeConstraintCheckEnum (fieldName, _ununsed, values) {
 }
 
 function makeTableConstraint (constraintName, option) {
+  if (!option) return null;
   return {
     type: option.type,
     value: {
