@@ -67,6 +67,8 @@ exports.KeywordDisable = keyword(/DISABLE/i);
 exports.KeywordNoCheck = keyword(/NOCHECK/i);
 exports.KeywordDrop = keyword(/DROP/i);
 exports.KeywordAlterColumn = keyword(/ALTER[^\S\r\n]+COLUMN/i);
+exports.KeywordGo = keyword(/GO/i);
+
 exports.LogicalOpIn = keyword(/IN/i, true);
 exports.LogicalOpAnd = keyword(/AND/i, true);
 
@@ -80,3 +82,4 @@ exports.DoubleQuote = word('"');
 exports.LBracket = word('[');
 exports.RBracket = word(']');
 exports.Equal = word('=');
+exports.Semicolon = word(';');

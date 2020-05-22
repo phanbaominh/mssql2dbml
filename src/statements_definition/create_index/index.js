@@ -1,11 +1,11 @@
 const P = require('parsimmon');
-const BP = require('../base_parsers');
+const BP = require('../../base_parsers');
 const {
   pIdentifier, pKeywordClusteredOrNon, pConst, pColumnNames, pDotDelimitedName, pComparsionOp,
-} = require('../composite_parsers');
-const { makeNode, makeList } = require('../utils');
+} = require('../../composite_parsers');
+const { makeNode, makeList } = require('../../utils');
 const A = require('./actions');
-const { pIgnoredIndexOption } = require('../index_definition');
+const { pIgnoredIndexOption } = require('../../index_definition');
 
 const Lang = P.createLanguage({
 
@@ -32,4 +32,4 @@ const Lang = P.createLanguage({
 
 });
 
-module.exports = Lang;
+module.exports = Lang.CreateIndex;

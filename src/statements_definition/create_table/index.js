@@ -1,12 +1,12 @@
 const P = require('parsimmon');
-const BP = require('../base_parsers');
+const BP = require('../../base_parsers');
 const {
   pIdentifier, pDotDelimitedName,
-} = require('../composite_parsers');
-const { makeNode, makeList } = require('../utils');
-const { pTableConstraint } = require('../constraint_definition');
-const { pTableIndex, pIgnoredIndexOption } = require('../index_definition');
-const { pColumnsDefinition } = require('../column_definition');
+} = require('../../composite_parsers');
+const { makeNode, makeList } = require('../../utils');
+const { pTableConstraint } = require('../../constraint_definition');
+const { pTableIndex, pIgnoredIndexOption } = require('../../index_definition');
+const { pColumnsDefinition } = require('../../column_definition');
 const A = require('./actions');
 
 const Lang = P.createLanguage({
@@ -32,7 +32,4 @@ const Lang = P.createLanguage({
   TextImageTableOption: () => P.seq(BP.KeywordTextImage_On, pIdentifier),
 });
 
-module.exports = {
-  pCreateTable: Lang.CreateTable,
-  pTableConstraint,
-};
+module.exports = Lang.CreateTable;

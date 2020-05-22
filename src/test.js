@@ -3,9 +3,9 @@ const {
   pIdentity, pColumnIndex, pColumnConstraint, pDataType, pColumnsDefinition,
 } = require('./column_definition');
 
-const { pCreateTable, pTableConstraint } = require('./create_table');
-const { CreateIndex } = require('./create_index');
-const { AlterTable } = require('./alter_table');
+const { pTableConstraint } = require('./constraint_definition');
+const { pCreateTable, pCreateIndex, pAlterTable } = require('./statements_definition');
+const pStatements = require('./statements');
 
 const testIdentity = 'IDENTITY(1, 2, 3, 4, 5, 6)     --abc        d';
 const testColumnIndex = 'INDEX    test';
@@ -73,7 +73,23 @@ ADD CONSTRAINT cool
 PRIMARY KEY (column1)
 `.replace(/\n/g, ' ');
 
-const testAlterTable = [testAlterTable1, testAlterTable2];
+const testAlterTable3 = `ALTER TABLE table1
+  DROP asdasd
+`.replace(/\n/g, ' ');
+const testAlterTable = [testAlterTable1, testAlterTable2, testAlterTable3];
+
+const testStatements = `CREATE TABLE [products] (
+  [id] int PRIMARY KEY DEFAULT (123),
+  [name] varchar(255) DEFAULT 'Tea',
+  [merchant_id] int NOT NULL,
+  [price] float DEFAULT (123.12),
+  [status] varchar(255) DEFAULT (NULL),
+  [created_at] varchar(255) DEFAULT (now()),
+  [stock] boolean DEFAULT (10),
+  [expiration] date DEFAULT (10)
+)
+GO
+`;
 
 prettyPrint(pIdentity, testIdentity, false);
 prettyPrint(pColumnIndex, testColumnIndex, false);
@@ -82,5 +98,6 @@ prettyPrint(pDataType, testDataType, false);
 prettyPrint(pColumnsDefinition, testColumnDefinition, false);
 prettyPrint(pTableConstraint, testTableConstraint, false);
 prettyPrint(pCreateTable, testCreateTable, false);
-prettyPrint(CreateIndex, testCreateIndex, false);
-prettyPrint(AlterTable, testAlterTable, true);
+prettyPrint(pCreateIndex, testCreateIndex, false);
+prettyPrint(pAlterTable, testAlterTable, false);
+prettyPrint(pStatements, testStatements, true);
