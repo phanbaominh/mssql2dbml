@@ -48,6 +48,8 @@ exports.makeList = function (parser, isZero = false) {
 exports.streamline = function (type) {
   return function (parser) {
     return parser.skip(wss).map(value => {
+      // eslint-disable-next-line no-param-reassign
+      if (!value) value = '';
       return {
         type,
         value,
