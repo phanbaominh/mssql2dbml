@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 function createRefFromInlineRef (linesRefs, inlineRef, fieldName, tableName) {
-  if (!inlineRef) return;
+  if (!inlineRef || inlineRef.length === 0) return;
   const newRef = {};
   newRef.onUpdate = inlineRef.onUpdate;
   newRef.onDelete = inlineRef.onDelete;
@@ -45,7 +45,7 @@ function getLinesValue (lines, tableName) {
       if (line.type === 'fields') {
         pushOutEnum(value.enums, line.value);
         pushOutIndex(value.indexes, line.value);
-        createRefFromInlineRef(value.refs, line.value.inline_ref, tableName);
+        createRefFromInlineRef(value.refs, line.value.inline_refs, tableName);
       }
       value[line.type].push(line.value);
     }
@@ -59,7 +59,7 @@ function getLinesValue (lines, tableName) {
 function makeTable (_keyword, tableName, _keyword2, lines) {
   const linesValue = getLinesValue(lines, _.last(tableName));
   return {
-    type: 'table',
+    type: 'tables',
     value: {
       name: _.last(tableName),
       ...linesValue.value,

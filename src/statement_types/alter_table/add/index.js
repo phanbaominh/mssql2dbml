@@ -1,18 +1,16 @@
 const P = require('parsimmon');
 const BP = require('../../../base_parsers');
-const {
-  pIdentifier,
-} = require('../../../composite_parsers');
+const { pIdentifier } = require('../../../composite_parsers');
 const { makeNode, makeList } = require('../../../utils');
 const A = require('./actions');
 const { pTableConstraintFK } = require('../../../fk_definition');
 const { pTableConstraintIndex } = require('../../../index_definition');
 const { pConstraintCheck, pConstExpr, pConstraintName } = require('../../../constraint_definition');
+const { pColumnsDefinition } = require('../../../column_definition');
 
-// TODO IGNORE add column
 const Lang = P.createLanguage({
   AddAction: (r) => P.seq(BP.KeywordAdd, r.AddOption).map(value => value[1]),
-  AddOption: (r) => P.alt(r.AddConstraint),
+  AddOption: (r) => P.alt(r.AddConstraint, pColumnsDefinition.result(null)),
   AddConstraint: (r) => P.seqMap(
     pConstraintName.fallback(null),
     r.AddConstraintOption,

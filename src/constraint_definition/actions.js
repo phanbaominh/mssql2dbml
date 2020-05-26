@@ -25,7 +25,8 @@ function makeConstraintCheckEnum (fieldName, _ununsed, values) {
   const valuesProp = [];
   values.forEach(value => {
     valuesProp.push({
-      name: value.value,
+      name: value.value.value,
+      token: value.value.token,
     });
   });
   return {

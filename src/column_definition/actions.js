@@ -18,6 +18,7 @@ function makeColumn (fieldName, dataType, fieldSettings) {
     if (setting) value[setting.type] = setting.value;
   });
   value.name = fieldName[0];
+  if (!value.inline_refs) value.inline_refs = [];
   return {
     type: 'fields',
     value,

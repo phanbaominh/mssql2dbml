@@ -24,7 +24,7 @@ function makeColumnConstraintFK (_unused, tableName, columnName, fkOptions) {
   value.endpoint = makeEndPoint(tableName, columnName, '1');
   setOption(value, fkOptions);
   return {
-    type: 'inline_ref',
+    type: 'inline_refs',
     value: [value],
   };
 }
